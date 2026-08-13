@@ -16,23 +16,22 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
-# High-Contrast CSS Fix (Guaranteed Text Visibility)
+# High-Contrast CSS Fix (Guaranteed Button & Text Visibility)
 # -----------------------------------------------------------------------------
 st.markdown(
     """
 <style>
-    /* Force Global Dark Background & White Text */
+    /* Force Dark Background & Text Visibility */
     .stApp, [data-testid="stAppViewContainer"] {
         background-color: #0d1117 !important;
-        color: #f0f6fc !important;
+        color: #ffffff !important;
     }
 
-    /* Force visibility on all HTML tags */
-    h1, h2, h3, h4, h5, h6, p, span, label, li, strong, div, .stMarkdown {
-        color: #f0f6fc !important;
+    h1, h2, h3, h4, h5, h6, p, span, label, li, strong, div {
+        color: #ffffff !important;
     }
 
-    /* Glowing Title */
+    /* Glowing Main Title */
     .glowing-title {
         font-size: 2.8rem;
         font-weight: 800;
@@ -51,12 +50,12 @@ st.markdown(
     /* Form Container Fix */
     div[data-testid="stForm"] {
         background-color: #161b22 !important;
-        border: 1px solid #30363d !important;
+        border: 2px solid #30363d !important;
         border-radius: 12px;
         padding: 25px;
     }
 
-    /* Input Boxes Text & Background Fix */
+    /* Input Fields */
     .stTextInput input, .stSelectbox [data-baseweb="select"] {
         background-color: #21262d !important;
         color: #ffffff !important;
@@ -64,25 +63,34 @@ st.markdown(
         border-radius: 6px !important;
     }
 
-    /* Dropdown text fix */
     .stSelectbox [data-baseweb="select"] * {
         color: #ffffff !important;
         background-color: #21262d !important;
     }
 
-    /* Submit Button */
-    .stButton>button {
-        width: 100%;
-        background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%) !important;
+    /* 📌 CRITICAL FIX: Bright Visible Submit Button */
+    div[data-testid="stForm"] button[kind="primaryFormSubmit"],
+    .stButton > button {
+        background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%) !important;
         color: #ffffff !important;
-        font-weight: 700 !important;
-        font-size: 1.1rem !important;
-        border: none !important;
-        padding: 12px 24px !important;
-        border-radius: 8px !important;
+        font-weight: 800 !important;
+        font-size: 1.2rem !important;
+        border: 2px solid #a855f7 !important;
+        padding: 14px 28px !important;
+        border-radius: 10px !important;
+        box-shadow: 0 0 15px rgba(168, 85, 247, 0.6) !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+        width: 100% !important;
     }
 
-    /* Expander Output Cards Text Fix */
+    div[data-testid="stForm"] button[kind="primaryFormSubmit"]:hover,
+    .stButton > button:hover {
+        background: linear-gradient(90deg, #1d4ed8 0%, #6d28d9 100%) !important;
+        box-shadow: 0 0 25px rgba(168, 85, 247, 0.9) !important;
+        transform: translateY(-2px);
+    }
+
+    /* Expander Output Cards */
     div[data-testid="stExpander"] {
         background-color: #161b22 !important;
         border: 1px solid #30363d !important;
@@ -93,7 +101,7 @@ st.markdown(
         color: #f0f6fc !important;
     }
 
-    /* Code & Tech Stack Badges Fix */
+    /* Code Tags Fix */
     code {
         background-color: #21262d !important;
         color: #38bdf8 !important;
@@ -170,7 +178,9 @@ with st.form("project_input_form"):
     )
 
     st.markdown("<br>", unsafe_allow_html=True)
-    submit_btn = st.form_submit_button("🚀 Generate Industry Blueprints")
+    
+    # 📌 Submitting Button with Primary Style
+    submit_btn = st.form_submit_button("🚀 Generate Industry Blueprints", type="primary")
 
 # -----------------------------------------------------------------------------
 # Execution & Display
