@@ -16,20 +16,20 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
-# Custom CSS (Fixes Code Blocks & Badges Visibility)
+# High-Contrast CSS Fix (Guaranteed Text Visibility)
 # -----------------------------------------------------------------------------
 st.markdown(
     """
 <style>
-    /* Main Background */
-    .stApp {
-        background-color: #0b0f19;
-        color: #ffffff !important;
+    /* Force Global Dark Background & White Text */
+    .stApp, [data-testid="stAppViewContainer"] {
+        background-color: #0d1117 !important;
+        color: #f0f6fc !important;
     }
 
-    /* Headings & Text High Contrast */
-    h1, h2, h3, h4, h5, h6, label, p, span, div {
-        color: #ffffff !important;
+    /* Force visibility on all HTML tags */
+    h1, h2, h3, h4, h5, h6, p, span, label, li, strong, div, .stMarkdown {
+        color: #f0f6fc !important;
     }
 
     /* Glowing Title */
@@ -43,33 +43,34 @@ st.markdown(
     }
 
     .sub-title {
-        color: #cbd5e1 !important;
+        color: #94a3b8 !important;
         font-size: 1.1rem;
         margin-bottom: 25px;
     }
 
-    /* Glassmorphism Card Container */
+    /* Form Container Fix */
     div[data-testid="stForm"] {
-        background-color: #151d2a !important;
-        border: 1px solid #334155 !important;
-        border-radius: 16px;
+        background-color: #161b22 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 12px;
         padding: 25px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
 
-    /* Input Fields */
+    /* Input Boxes Text & Background Fix */
     .stTextInput input, .stSelectbox [data-baseweb="select"] {
-        background-color: #1e293b !important;
+        background-color: #21262d !important;
         color: #ffffff !important;
-        border: 1px solid #475569 !important;
-        border-radius: 8px !important;
+        border: 1px solid #484f58 !important;
+        border-radius: 6px !important;
     }
 
+    /* Dropdown text fix */
     .stSelectbox [data-baseweb="select"] * {
         color: #ffffff !important;
+        background-color: #21262d !important;
     }
 
-    /* Action Button */
+    /* Submit Button */
     .stButton>button {
         width: 100%;
         background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%) !important;
@@ -78,35 +79,34 @@ st.markdown(
         font-size: 1.1rem !important;
         border: none !important;
         padding: 12px 24px !important;
-        border-radius: 10px !important;
-        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4) !important;
+        border-radius: 8px !important;
     }
 
-    /* Expander Output Cards */
+    /* Expander Output Cards Text Fix */
     div[data-testid="stExpander"] {
-        background-color: #151d2a !important;
-        border: 1px solid #334155 !important;
-        border-radius: 10px !important;
+        background-color: #161b22 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 8px !important;
     }
 
     div[data-testid="stExpander"] * {
-        color: #f8fafc !important;
+        color: #f0f6fc !important;
     }
 
-    /* 📌 CRITICAL FIX: Code Tags / Tech Stack Badges Visibility */
+    /* Code & Tech Stack Badges Fix */
     code {
-        background-color: #1e293b !important;
+        background-color: #21262d !important;
         color: #38bdf8 !important;
-        border: 1px solid #334155 !important;
-        border-radius: 6px !important;
-        padding: 4px 8px !important;
+        border: 1px solid #30363d !important;
+        padding: 3px 6px !important;
+        border-radius: 4px !important;
         font-weight: 600 !important;
     }
 
-    /* Sidebar Background */
+    /* Sidebar Fix */
     section[data-testid="stSidebar"] {
-        background-color: #070a12 !important;
-        border-right: 1px solid #1e293b;
+        background-color: #010409 !important;
+        border-right: 1px solid #30363d;
     }
 </style>
 """,
@@ -133,8 +133,8 @@ with st.sidebar:
     st.title("⚙️ Control Panel")
     st.markdown("---")
     st.markdown("✨ **Features Enabled:**")
-    st.markdown("• High-Contrast Dark Theme")
-    st.markdown("• Gemini 2.0 Flash Engine")
+    st.markdown("• High-Contrast Theme Fix")
+    st.markdown("• Gemini AI Engine")
     st.markdown("• Dynamic Roadmap Engine")
     st.markdown("---")
     st.caption("🚀 Designed for Academic Presentations")
