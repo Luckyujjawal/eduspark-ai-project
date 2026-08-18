@@ -4,9 +4,12 @@ from google import genai
 from google.genai import types
 
 # -----------------------------------------------------------------------------
-# Configuration
+# Configuration (Fetch from Streamlit Secrets or Fallback)
 # -----------------------------------------------------------------------------
-DEFAULT_API_KEY = "AQ.Ab8RN6IL_cI-CvCk2a6A-R6ocuFKzhSutfUOj9lG82M9Au7wlg"
+DEFAULT_API_KEY = st.secrets.get(
+    "GEMINI_API_KEY",
+    "AQ.Ab8RN6IL_cl-CvCk2a6A-R6ocuFKzhSutfUoj9lG82M9Au7wlg",
+)
 
 st.set_page_config(
     page_title="EduSpark | AI Project Blueprint Generator",
@@ -126,7 +129,7 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("✨ **Features Enabled:**")
     st.markdown("• Dark Modern UI")
-    st.markdown("• Gemini 2.0 Flash Engine")
+    st.markdown("• Gemini 3.6 Flash Engine")
     st.markdown("• Structured Blueprints")
     st.markdown("---")
     st.caption("🚀 Designed for Academic Presentations")
@@ -206,7 +209,7 @@ if submit_btn:
 
             with st.spinner("⚡ AI is crafting your blueprints..."):
                 response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-3.6-flash",
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json"
