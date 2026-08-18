@@ -4,25 +4,21 @@ from google import genai
 from google.genai import types
 
 # -----------------------------------------------------------------------------
-# Configuration (Fetch from Streamlit Secrets or Fallback)
+# Configuration (Reads from Streamlit Secrets or Fallback)
 # -----------------------------------------------------------------------------
-DEFAULT_API_KEY = st.secrets.get(
-    "GEMINI_API_KEY",
-    "AQ.Ab8RN6IL_cl-CvCk2a6A-R6ocuFKzhSutfUoj9lG82M9Au7wlg",
-)
+API_KEY = st.secrets.get("GEMINI_API_KEY", "AQ.Ab8RN6JgKtHC6UhKtjpZpMZiyB-UYXOTJYA60Jceo4trFGtz3w")
 
 st.set_page_config(
     page_title="EduSpark | AI Project Blueprint Generator",
     page_icon="🎓",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="expanded"
 )
 
 # -----------------------------------------------------------------------------
-# High-Contrast CSS Styling
+# CSS Styling
 # -----------------------------------------------------------------------------
-st.markdown(
-    """
+st.markdown("""
 <style>
     .stApp, [data-testid="stAppViewContainer"] {
         background-color: #0d1117 !important;
@@ -104,33 +100,21 @@ st.markdown(
         border-right: 1px solid #30363d;
     }
 </style>
-""",
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# Header Section
+# Header
 # -----------------------------------------------------------------------------
-st.markdown(
-    "<div class='glowing-title'>🎓 EduSpark AI</div>", unsafe_allow_html=True
-)
-st.markdown(
-    "<div class='sub-title'>Next-Gen Project Blueprint & Learning Roadmap Generator</div>",
-    unsafe_allow_html=True,
-)
+st.markdown("<div class='glowing-title'>🎓 EduSpark AI</div>", unsafe_allow_html=True)
+st.markdown("<div class='sub-title'>Next-Gen Project Blueprint & Learning Roadmap Generator</div>", unsafe_allow_html=True)
 
 # Sidebar
 with st.sidebar:
-    st.image(
-        "https://img.icons8.com/fluency/96/artificial-intelligence.png",
-        width=80,
-    )
+    st.image("https://img.icons8.com/fluency/96/artificial-intelligence.png", width=80)
     st.title("⚙️ Control Panel")
     st.markdown("---")
-    st.markdown("✨ **Features Enabled:**")
-    st.markdown("• Dark Modern UI")
-    st.markdown("• Gemini 3.6 Flash Engine")
-    st.markdown("• Structured Blueprints")
+    st.markdown("✨ **Status:** Connected")
+    st.markdown("• Engine: Gemini 2.5 Flash")
     st.markdown("---")
     st.caption("🚀 Designed for Academic Presentations")
 
@@ -138,36 +122,21 @@ with st.sidebar:
 # Form Section
 # -----------------------------------------------------------------------------
 with st.form("project_input_form"):
-    st.markdown(
-        "<h3 style='color: #ffffff !important; margin-bottom: 20px;'>🎯 Student Profile Settings</h3>",
-        unsafe_allow_html=True,
-    )
+    st.markdown("<h3 style='color: #ffffff !important; margin-bottom: 20px;'>🎯 Student Profile Settings</h3>", unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        subject = st.text_input(
-            "Subject / Domain",
-            placeholder="e.g. Computer Science, AI, Web Dev",
-        )
+        subject = st.text_input("Subject / Domain", placeholder="e.g. Python, AI, Web Dev")
     with col2:
-        skill_level = st.selectbox(
-            "Current Skill Level", ["Beginner", "Intermediate", "Advanced"]
-        )
+        skill_level = st.selectbox("Current Skill Level", ["Beginner", "Intermediate", "Advanced"])
     with col3:
-        interests = st.text_input(
-            "Interests / Specialization",
-            placeholder="e.g. Healthcare, Finance, Gaming",
-        )
+        interests = st.text_input("Interests / Specialization", placeholder="e.g. Healthcare, Finance, Gaming")
 
-    num_ideas = st.slider(
-        "Number of Blueprints to Generate", min_value=1, max_value=3, value=2
-    )
+    num_ideas = st.slider("Number of Blueprints to Generate", min_value=1, max_value=3, value=2)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    submit_btn = st.form_submit_button(
-        "🚀 Generate Industry Blueprints", type="primary"
-    )
+    submit_btn = st.form_submit_button("🚀 Generate Industry Blueprints", type="primary")
 
 # -----------------------------------------------------------------------------
 # Execution & Display
@@ -177,7 +146,7 @@ if submit_btn:
         st.warning("⚠️ Kripya Subject / Domain field fill karein.")
     else:
         try:
-            client = genai.Client(api_key=DEFAULT_API_KEY)
+            client = genai.Client(api_key=API_KEY)
 
             prompt = f"""
             Act as a Senior Academic Mentor & Software Architect.
@@ -209,11 +178,11 @@ if submit_btn:
 
             with st.spinner("⚡ AI is crafting your blueprints..."):
                 response = client.models.generate_content(
-                    model="gemini-3.6-flash",
+                    model="gemini-2.5-flash",
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json"
-                    ),
+                    )
                 )
 
                 data = json.loads(response.text)
@@ -221,12 +190,8 @@ if submit_btn:
                 st.success("🎉 Project Blueprints Generated Successfully!")
 
                 for idx, proj in enumerate(data.get("projects", []), 1):
-                    with st.expander(
-                        f"📌 Blueprint #{idx}: {proj['title']}", expanded=True
-                    ):
-                        st.markdown(
-                            f"**Difficulty Level:** `{proj['difficulty']}`"
-                        )
+                    with st.expander(f"📌 Blueprint #{idx}: {proj['title']}", expanded=True):
+                        st.markdown(f"**Difficulty Level:** `{proj['difficulty']}`")
                         st.markdown(f"**Overview:** {proj['summary']}")
                         st.markdown("---")
 
@@ -238,16 +203,12 @@ if submit_btn:
 
                         with c2:
                             st.markdown("##### 🛠️ Tech Stack")
-                            tech_badges = " ".join(
-                                [f"`{t}`" for t in proj.get("tech_stack", [])]
-                            )
+                            tech_badges = " ".join([f"`{t}`" for t in proj.get("tech_stack", [])])
                             st.write(tech_badges)
 
                         st.markdown("---")
                         st.markdown("##### 🗺️ Execution Roadmap")
-                        for step_num, step in enumerate(
-                            proj.get("roadmap", []), 1
-                        ):
+                        for step_num, step in enumerate(proj.get("roadmap", []), 1):
                             st.write(f"**Step {step_num}:** {step}")
 
         except Exception as e:
