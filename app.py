@@ -1,17 +1,13 @@
 import json
-import os
+import requests
 import streamlit as st
-from google import genai
-from google.genai import types
 
 # -----------------------------------------------------------------------------
-# Configuration (Environment Setup)
+# Configuration
 # -----------------------------------------------------------------------------
-raw_key = st.secrets.get(
-    "GEMINI_API_KEY",
-    "AQ.Ab8RN6JgKtHC6UhKtjpZpMZiyB-UYXOTJYA60Jceo4trFGtz3w",
+API_KEY = st.secrets.get(
+    "GEMINI_API_KEY", "AQ.Ab8RN6JgKtHC6UhKtjpZpMZiyB-UYXOTJYA60Jceo4trFGtz3w"
 ).strip()
-os.environ["GEMINI_API_KEY"] = raw_key
 
 st.set_page_config(
     page_title="EduSpark | AI Project Blueprint Generator",
@@ -126,7 +122,7 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("**Features:**")
     st.markdown("- Modern Dark UI")
-    st.markdown("- Gemini 3.6 Flash Engine")
+    st.markdown("- Dual Auth Pipeline")
     st.markdown("- Structured Blueprints")
     st.markdown("---")
     st.caption("Designed for Academic Presentations")
@@ -166,85 +162,105 @@ with st.form("project_input_form"):
     )
 
 # -----------------------------------------------------------------------------
-# Execution and Display
+# Execution
 # -----------------------------------------------------------------------------
 if submit_btn:
     if not subject:
         st.warning("Please fill the Subject / Domain field.")
     else:
-        try:
-            client = genai.Client()
+        prompt = f"""
+        Act as a Senior Academic Mentor and Software Architect.
+        Generate {num_ideas} unique academic project ideas.
 
-            prompt = f"""
-            Act as a Senior Academic Mentor and Software Architect.
-            Generate {num_ideas} unique academic project ideas.
+        Student Details:
+        - Subject: {subject}
+        - Skill Level: {skill_level}
+        - Interests: {interests}
 
-            Student Details:
-            - Subject: {subject}
-            - Skill Level: {skill_level}
-            - Interests: {interests}
+        Respond STRICTLY in valid JSON format with key 'projects':
+        {{
+            "projects": [
+                {{
+                    "title": "Project Name",
+                    "difficulty": "{skill_level}",
+                    "summary": "Clear, impactful 2-line summary",
+                    "key_features": ["Feature 1", "Feature 2", "Feature 3"],
+                    "tech_stack": ["Tech 1", "Tech 2", "Tech 3"],
+                    "roadmap": [
+                        "Phase 1: Step description",
+                        "Phase 2: Step description",
+                        "Phase 3: Step description"
+                    ]
+                }}
+            ]
+        }}
+        """
 
-            Respond STRICTLY in valid JSON format with key 'projects':
-            {{
-                "projects": [
-                    {{
-                        "title": "Project Name",
-                        "difficulty": "{skill_level}",
-                        "summary": "Clear, impactful 2-line summary",
-                        "key_features": ["Feature 1", "Feature 2", "Feature 3"],
-                        "tech_stack": ["Tech 1", "Tech 2", "Tech 3"],
-                        "roadmap": [
-                            "Phase 1: Step description",
-                            "Phase 2: Step description",
-                            "Phase 3: Step description"
-                        ]
-                    }}
-                ]
-            }}
-            """
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
-            with st.spinner("AI is crafting your blueprints..."):
-                response = client.models.generate_content(
-                    model="gemini-3.6-flash",
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        response_mime_type="application/json"
-                    ),
+        # Headers supporting standard Bearer token authentication
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {API_KEY}",
+            "x-goog-api-key": API_KEY,
+        }
+
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"response_mime_type": "application/json"},
+        }
+
+        with st.spinner("AI is crafting your blueprints..."):
+            try:
+                res = requests.post(
+                    url, headers=headers, json=payload, timeout=30
                 )
+                res_data = res.json()
 
-                data = json.loads(response.text)
+                if res.status_code != 200:
+                    st.error(
+                        f"API Error ({res.status_code}): {res_data.get('error', {}).get('message', 'Request failed')}"
+                    )
+                else:
+                    raw_text = res_data["candidates"][0]["content"]["parts"][
+                        0
+                    ]["text"]
+                    data = json.loads(raw_text)
 
-                st.success("Project Blueprints Generated Successfully!")
+                    st.success("Project Blueprints Generated Successfully!")
 
-                for idx, proj in enumerate(data.get("projects", []), 1):
-                    with st.expander(
-                        f"Blueprint #{idx}: {proj['title']}", expanded=True
-                    ):
-                        st.markdown(
-                            f"**Difficulty Level:** `{proj['difficulty']}`"
-                        )
-                        st.markdown(f"**Overview:** {proj['summary']}")
-                        st.markdown("---")
-
-                        c1, c2 = st.columns(2)
-                        with c1:
-                            st.markdown("##### Key Features")
-                            for feat in proj.get("key_features", []):
-                                st.write(f"- {feat}")
-
-                        with c2:
-                            st.markdown("##### Tech Stack")
-                            tech_badges = " ".join(
-                                [f"`{t}`" for t in proj.get("tech_stack", [])]
-                            )
-                            st.write(tech_badges)
-
-                        st.markdown("---")
-                        st.markdown("##### Execution Roadmap")
-                        for step_num, step in enumerate(
-                            proj.get("roadmap", []), 1
+                    for idx, proj in enumerate(data.get("projects", []), 1):
+                        with st.expander(
+                            f"Blueprint #{idx}: {proj['title']}", expanded=True
                         ):
-                            st.write(f"**Step {step_num}:** {step}")
+                            st.markdown(
+                                f"**Difficulty Level:** `{proj['difficulty']}`"
+                            )
+                            st.markdown(f"**Overview:** {proj['summary']}")
+                            st.markdown("---")
 
-        except Exception as e:
-            st.error(f"Error occurred: {str(e)}")
+                            c1, c2 = st.columns(2)
+                            with c1:
+                                st.markdown("##### Key Features")
+                                for feat in proj.get("key_features", []):
+                                    st.write(f"- {feat}")
+
+                            with c2:
+                                st.markdown("##### Tech Stack")
+                                tech_badges = " ".join(
+                                    [
+                                        f"`{t}`"
+                                        for t in proj.get("tech_stack", [])
+                                    ]
+                                )
+                                st.write(tech_badges)
+
+                            st.markdown("---")
+                            st.markdown("##### Execution Roadmap")
+                            for step_num, step in enumerate(
+                                proj.get("roadmap", []), 1
+                            ):
+                                st.write(f"**Step {step_num}:** {step}")
+
+            except Exception as e:
+                st.error(f"Error occurred: {str(e)}")
