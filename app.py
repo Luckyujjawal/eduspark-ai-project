@@ -9,16 +9,17 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
-# CSS Styling
+# High-Contrast CSS Styling (Selectbox Dropdown Fix Included)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
+    /* Main Background */
     .stApp, [data-testid="stAppViewContainer"] {
         background-color: #0d1117 !important;
         color: #ffffff !important;
     }
 
-    h1, h2, h3, h4, h5, h6, p, span, label, li, strong, div {
+    h1, h2, h3, h4, h5, h6, p, span, label, strong {
         color: #ffffff !important;
     }
 
@@ -37,6 +38,7 @@ st.markdown("""
         margin-bottom: 25px;
     }
 
+    /* Form Container */
     div[data-testid="stForm"] {
         background-color: #161b22 !important;
         border: 2px solid #30363d !important;
@@ -44,18 +46,46 @@ st.markdown("""
         padding: 25px;
     }
 
-    .stTextInput input, .stSelectbox [data-baseweb="select"] {
+    /* Inputs & Selectbox Closed State */
+    .stTextInput input, 
+    div[data-baseweb="select"] > div {
         background-color: #21262d !important;
         color: #ffffff !important;
         border: 1px solid #484f58 !important;
         border-radius: 6px !important;
     }
 
-    .stSelectbox [data-baseweb="select"] * {
+    div[data-baseweb="select"] * {
         color: #ffffff !important;
-        background-color: #21262d !important;
     }
 
+    /* DROPDOWN MENU OPEN LIST FIX (Options Visibility) */
+    div[data-baseweb="popover"],
+    div[data-baseweb="popover"] > div,
+    ul[role="listbox"] {
+        background-color: #1e293b !important;
+        border: 1px solid #475569 !important;
+        border-radius: 8px !important;
+    }
+
+    li[role="option"],
+    div[role="option"] {
+        background-color: #1e293b !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        padding: 10px 14px !important;
+        cursor: pointer !important;
+    }
+
+    li[role="option"]:hover,
+    div[role="option"]:hover,
+    li[aria-selected="true"],
+    div[aria-selected="true"] {
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+    }
+
+    /* Submit Button */
     div[data-testid="stForm"] button[kind="primaryFormSubmit"],
     .stButton > button {
         background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%) !important;
@@ -69,6 +99,7 @@ st.markdown("""
         width: 100% !important;
     }
 
+    /* Expander Cards */
     div[data-testid="stExpander"] {
         background-color: #161b22 !important;
         border: 1px solid #30363d !important;
@@ -196,8 +227,8 @@ if submit_btn:
     if not subject:
         st.warning("Please fill the Subject / Domain field.")
     else:
-        with st.spinner("AI is crafting your blueprints..."):
-            time.sleep(1.2)
+        with st.spinner("Crafting your project blueprints..."):
+            time.sleep(1.0)
             blueprints = generate_dynamic_blueprints(subject, skill_level, interests, num_ideas)
 
             st.success("Project Blueprints Generated Successfully!")
