@@ -6,7 +6,7 @@ from google.genai import types
 # -----------------------------------------------------------------------------
 # Configuration
 # -----------------------------------------------------------------------------
-DEFAULT_API_KEY = "AQ.Ab8RN6LjR6T1NYYRZfXHcbzV1eQw860CXaUCOO1RgaCZjeA8zg"
+DEFAULT_API_KEY = "AQ.Ab8RN6IUlC4gDBr2mggwClq7zecPI56_m0zUI_pHIA_qvoq-FA"
 
 st.set_page_config(
     page_title="EduSpark | AI Project Blueprint Generator",
@@ -16,12 +16,11 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
-# High-Contrast CSS Fix (Guaranteed Button & Text Visibility)
+# High-Contrast CSS Styling
 # -----------------------------------------------------------------------------
 st.markdown(
     """
 <style>
-    /* Force Dark Background & Text Visibility */
     .stApp, [data-testid="stAppViewContainer"] {
         background-color: #0d1117 !important;
         color: #ffffff !important;
@@ -31,7 +30,6 @@ st.markdown(
         color: #ffffff !important;
     }
 
-    /* Glowing Main Title */
     .glowing-title {
         font-size: 2.8rem;
         font-weight: 800;
@@ -47,7 +45,6 @@ st.markdown(
         margin-bottom: 25px;
     }
 
-    /* Form Container Fix */
     div[data-testid="stForm"] {
         background-color: #161b22 !important;
         border: 2px solid #30363d !important;
@@ -55,7 +52,6 @@ st.markdown(
         padding: 25px;
     }
 
-    /* Input Fields */
     .stTextInput input, .stSelectbox [data-baseweb="select"] {
         background-color: #21262d !important;
         color: #ffffff !important;
@@ -68,7 +64,6 @@ st.markdown(
         background-color: #21262d !important;
     }
 
-    /* 📌 CRITICAL FIX: Bright Visible Submit Button */
     div[data-testid="stForm"] button[kind="primaryFormSubmit"],
     .stButton > button {
         background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%) !important;
@@ -79,18 +74,9 @@ st.markdown(
         padding: 14px 28px !important;
         border-radius: 10px !important;
         box-shadow: 0 0 15px rgba(168, 85, 247, 0.6) !important;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
         width: 100% !important;
     }
 
-    div[data-testid="stForm"] button[kind="primaryFormSubmit"]:hover,
-    .stButton > button:hover {
-        background: linear-gradient(90deg, #1d4ed8 0%, #6d28d9 100%) !important;
-        box-shadow: 0 0 25px rgba(168, 85, 247, 0.9) !important;
-        transform: translateY(-2px);
-    }
-
-    /* Expander Output Cards */
     div[data-testid="stExpander"] {
         background-color: #161b22 !important;
         border: 1px solid #30363d !important;
@@ -101,7 +87,6 @@ st.markdown(
         color: #f0f6fc !important;
     }
 
-    /* Code Tags Fix */
     code {
         background-color: #21262d !important;
         color: #38bdf8 !important;
@@ -111,7 +96,6 @@ st.markdown(
         font-weight: 600 !important;
     }
 
-    /* Sidebar Fix */
     section[data-testid="stSidebar"] {
         background-color: #010409 !important;
         border-right: 1px solid #30363d;
@@ -141,9 +125,9 @@ with st.sidebar:
     st.title("⚙️ Control Panel")
     st.markdown("---")
     st.markdown("✨ **Features Enabled:**")
-    st.markdown("• High-Contrast Theme Fix")
-    st.markdown("• Gemini AI Engine")
-    st.markdown("• Dynamic Roadmap Engine")
+    st.markdown("• Dark Modern UI")
+    st.markdown("• Gemini 2.0 Flash Engine")
+    st.markdown("• Structured Blueprints")
     st.markdown("---")
     st.caption("🚀 Designed for Academic Presentations")
 
@@ -178,9 +162,9 @@ with st.form("project_input_form"):
     )
 
     st.markdown("<br>", unsafe_allow_html=True)
-    
-    # 📌 Submitting Button with Primary Style
-    submit_btn = st.form_submit_button("🚀 Generate Industry Blueprints", type="primary")
+    submit_btn = st.form_submit_button(
+        "🚀 Generate Industry Blueprints", type="primary"
+    )
 
 # -----------------------------------------------------------------------------
 # Execution & Display
@@ -221,22 +205,13 @@ if submit_btn:
             """
 
             with st.spinner("⚡ AI is crafting your blueprints..."):
-                try:
-                    response = client.models.generate_content(
-                        model="gemini-2.0-flash",
-                        contents=prompt,
-                        config=types.GenerateContentConfig(
-                            response_mime_type="application/json"
-                        ),
-                    )
-                except Exception:
-                    response = client.models.generate_content(
-                        model="gemini-flash-latest",
-                        contents=prompt,
-                        config=types.GenerateContentConfig(
-                            response_mime_type="application/json"
-                        ),
-                    )
+                response = client.models.generate_content(
+                    model="gemini-2.0-flash",
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json"
+                    ),
+                )
 
                 data = json.loads(response.text)
 
@@ -246,7 +221,6 @@ if submit_btn:
                     with st.expander(
                         f"📌 Blueprint #{idx}: {proj['title']}", expanded=True
                     ):
-
                         st.markdown(
                             f"**Difficulty Level:** `{proj['difficulty']}`"
                         )
