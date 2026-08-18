@@ -6,7 +6,7 @@ from google.genai import types
 # -----------------------------------------------------------------------------
 # Configuration
 # -----------------------------------------------------------------------------
-DEFAULT_API_KEY = "AQ.Ab8RN6IUlC4gDBr2mggwClq7zecPI56_m0zUI_pHIA_qvoq-FA"
+DEFAULT_API_KEY = "AQ.Ab8RN6IL_cI-CvCk2a6A-R6ocuFKzhSutfUOj9lG82M9Au7wlg"
 
 st.set_page_config(
     page_title="EduSpark | AI Project Blueprint Generator",
