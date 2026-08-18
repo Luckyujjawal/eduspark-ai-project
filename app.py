@@ -1,19 +1,20 @@
 import json
+import os
 import streamlit as st
 from google import genai
 from google.genai import types
 
 # -----------------------------------------------------------------------------
-# Configuration
+# Configuration (Environment Setup)
 # -----------------------------------------------------------------------------
-API_KEY = st.secrets.get(
+raw_key = st.secrets.get(
     "GEMINI_API_KEY",
     "AQ.Ab8RN6JgKtHC6UhKtjpZpMZiyB-UYXOTJYA60Jceo4trFGtz3w",
-)
+).strip()
+os.environ["GEMINI_API_KEY"] = raw_key
 
 st.set_page_config(
     page_title="EduSpark | AI Project Blueprint Generator",
-    page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -112,32 +113,30 @@ st.markdown(
 # Header
 # -----------------------------------------------------------------------------
 st.markdown(
-    "<div class='glowing-title'>🎓 EduSpark AI</div>", unsafe_allow_html=True
+    "<div class='glowing-title'>EduSpark AI</div>", unsafe_allow_html=True
 )
 st.markdown(
-    "<div class='sub-title'>Next-Gen Project Blueprint & Learning Roadmap Generator</div>",
+    "<div class='sub-title'>Next-Gen Project Blueprint and Learning Roadmap Generator</div>",
     unsafe_allow_html=True,
 )
 
 # Sidebar
 with st.sidebar:
-    st.image(
-        "https://img.icons8.com/fluency/96/artificial-intelligence.png",
-        width=80,
-    )
-    st.title("⚙️ Control Panel")
+    st.title("Control Panel")
     st.markdown("---")
-    st.markdown("✨ **Status:** Connected")
-    st.markdown("• Engine: Gemini 3.6 Flash")
+    st.markdown("**Features:**")
+    st.markdown("- Modern Dark UI")
+    st.markdown("- Gemini 3.6 Flash Engine")
+    st.markdown("- Structured Blueprints")
     st.markdown("---")
-    st.caption("🚀 Designed for Academic Presentations")
+    st.caption("Designed for Academic Presentations")
 
 # -----------------------------------------------------------------------------
 # Form Section
 # -----------------------------------------------------------------------------
 with st.form("project_input_form"):
     st.markdown(
-        "<h3 style='color: #ffffff !important; margin-bottom: 20px;'>🎯 Student Profile Settings</h3>",
+        "<h3 style='color: #ffffff !important; margin-bottom: 20px;'>Student Profile Settings</h3>",
         unsafe_allow_html=True,
     )
 
@@ -163,21 +162,21 @@ with st.form("project_input_form"):
 
     st.markdown("<br>", unsafe_allow_html=True)
     submit_btn = st.form_submit_button(
-        "🚀 Generate Industry Blueprints", type="primary"
+        "Generate Industry Blueprints", type="primary"
     )
 
 # -----------------------------------------------------------------------------
-# Execution & Display
+# Execution and Display
 # -----------------------------------------------------------------------------
 if submit_btn:
     if not subject:
-        st.warning("⚠️ Kripya Subject / Domain field fill karein.")
+        st.warning("Please fill the Subject / Domain field.")
     else:
         try:
-            client = genai.Client(api_key=API_KEY)
+            client = genai.Client()
 
             prompt = f"""
-            Act as a Senior Academic Mentor & Software Architect.
+            Act as a Senior Academic Mentor and Software Architect.
             Generate {num_ideas} unique academic project ideas.
 
             Student Details:
@@ -204,7 +203,7 @@ if submit_btn:
             }}
             """
 
-            with st.spinner("⚡ AI is crafting your blueprints..."):
+            with st.spinner("AI is crafting your blueprints..."):
                 response = client.models.generate_content(
                     model="gemini-3.6-flash",
                     contents=prompt,
@@ -215,11 +214,11 @@ if submit_btn:
 
                 data = json.loads(response.text)
 
-                st.success("🎉 Project Blueprints Generated Successfully!")
+                st.success("Project Blueprints Generated Successfully!")
 
                 for idx, proj in enumerate(data.get("projects", []), 1):
                     with st.expander(
-                        f"📌 Blueprint #{idx}: {proj['title']}", expanded=True
+                        f"Blueprint #{idx}: {proj['title']}", expanded=True
                     ):
                         st.markdown(
                             f"**Difficulty Level:** `{proj['difficulty']}`"
@@ -229,23 +228,23 @@ if submit_btn:
 
                         c1, c2 = st.columns(2)
                         with c1:
-                            st.markdown("##### ✨ Key Features")
+                            st.markdown("##### Key Features")
                             for feat in proj.get("key_features", []):
-                                st.write(f"🔹 {feat}")
+                                st.write(f"- {feat}")
 
                         with c2:
-                            st.markdown("##### 🛠️ Tech Stack")
+                            st.markdown("##### Tech Stack")
                             tech_badges = " ".join(
                                 [f"`{t}`" for t in proj.get("tech_stack", [])]
                             )
                             st.write(tech_badges)
 
                         st.markdown("---")
-                        st.markdown("##### 🗺️ Execution Roadmap")
+                        st.markdown("##### Execution Roadmap")
                         for step_num, step in enumerate(
                             proj.get("roadmap", []), 1
                         ):
                             st.write(f"**Step {step_num}:** {step}")
 
         except Exception as e:
-            st.error(f"❌ Error occurred: {str(e)}")
+            st.error(f"Error occurred: {str(e)}")
