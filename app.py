@@ -25,7 +25,7 @@ if "user_domain" not in st.session_state:
     st.session_state.user_domain = "Python"
 
 # -----------------------------------------------------------------------------
-# High-Contrast CSS (Password Eye Icon & Text Visibility Fix)
+# High-Contrast CSS (Eye Icon & Box Fix)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -69,12 +69,17 @@ st.markdown("""
         line-height: 1.6;
     }
 
-    /* Text Inputs Container */
-    .stTextInput input {
+    /* Entire Input Box Container Fix */
+    div[data-baseweb="input"] {
         background-color: #21262d !important;
-        color: #ffffff !important;
         border: 1px solid #484f58 !important;
         border-radius: 8px !important;
+    }
+
+    .stTextInput input {
+        background-color: transparent !important;
+        color: #ffffff !important;
+        border: none !important;
         font-size: 1rem !important;
     }
 
@@ -82,27 +87,23 @@ st.markdown("""
         color: #8b949e !important;
     }
 
-    /* PASSWORD SHOW / HIDE (EYE ICON) VISIBILITY FIX */
+    /* Eye Icon & Container Button Strict Dark Fix */
+    div[data-baseweb="input"] > div,
     div[data-testid="stTextInput"] button,
     div[data-baseweb="input"] button {
-        background-color: transparent !important;
+        background-color: #21262d !important;
         border: none !important;
         color: #38bdf8 !important;
         box-shadow: none !important;
     }
 
-    div[data-testid="stTextInput"] button:hover,
-    div[data-baseweb="input"] button:hover {
-        background-color: rgba(56, 189, 248, 0.15) !important;
-        border-radius: 4px !important;
-    }
-
+    /* Eye SVG Icon Neon Styling */
     div[data-testid="stTextInput"] svg,
     div[data-baseweb="input"] svg {
         fill: #38bdf8 !important;
-        stroke: #38bdf8 !important;
-        width: 20px !important;
-        height: 20px !important;
+        color: #38bdf8 !important;
+        width: 22px !important;
+        height: 22px !important;
         opacity: 1 !important;
     }
 
@@ -116,7 +117,7 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-    /* Dropdown popup options */
+    /* Dropdown Options */
     div[data-baseweb="popover"],
     div[data-baseweb="popover"] > div,
     ul[role="listbox"] {
@@ -137,7 +138,7 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-    /* Primary Submit Buttons */
+    /* Submit Button */
     div[data-testid="stForm"] button[kind="primaryFormSubmit"],
     .stButton > button {
         background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%) !important;
@@ -148,7 +149,7 @@ st.markdown("""
         width: 100% !important;
     }
 
-    /* Expanders & Output text visibility */
+    /* Expanders */
     div[data-testid="stExpander"] {
         background-color: #161b22 !important;
         border: 1px solid #30363d !important;
@@ -169,7 +170,7 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* Loader Box */
+    /* Loader */
     .auth-loader-container {
         display: flex;
         flex-direction: column;
