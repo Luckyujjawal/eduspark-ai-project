@@ -25,21 +25,29 @@ if "user_domain" not in st.session_state:
     st.session_state.user_domain = "Python"
 
 # -----------------------------------------------------------------------------
-# CSS Styling & Keyframe Animations
+# High-Contrast CSS (Text Visibility Fix)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
-    /* Main Background */
+    /* Main Background & Base Text */
     .stApp, [data-testid="stAppViewContainer"] {
         background-color: #0d1117 !important;
-        color: #ffffff !important;
+        color: #f0f6fc !important;
     }
 
-    h1, h2, h3, h4, h5, h6, p, span, label, strong {
+    /* Sabhi textual elements ko 100% white aur visible banayein */
+    h1, h2, h3, h4, h5, h6, p, span, label, strong, b, em, li, div {
         color: #ffffff !important;
+        opacity: 1 !important;
     }
 
-    /* Glowing Gradient Title */
+    /* Subtitle color contrast */
+    .sub-title {
+        color: #94a3b8 !important;
+        font-size: 1.15rem;
+        margin-bottom: 25px;
+    }
+
     .glowing-title {
         font-size: 2.8rem;
         font-weight: 800;
@@ -49,13 +57,7 @@ st.markdown("""
         margin-bottom: 5px;
     }
 
-    .sub-title {
-        color: #94a3b8 !important;
-        font-size: 1.1rem;
-        margin-bottom: 25px;
-    }
-
-    /* Form Container with Neon Border Pulse */
+    /* Cards & Containers me pure text ko crystal clear white karna */
     div[data-testid="stForm"], .card-box {
         background-color: #161b22 !important;
         border: 2px solid #30363d !important;
@@ -65,67 +67,26 @@ st.markdown("""
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 
-    /* Futuristic Animated Loader Box */
-    .auth-loader-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 30px;
-        background: rgba(22, 27, 34, 0.95);
-        border: 2px solid #818cf8;
-        border-radius: 16px;
-        box-shadow: 0 0 30px rgba(129, 140, 248, 0.4);
-        margin: 20px auto;
-        max-width: 480px;
-        animation: fadeIn 0.4s ease-in-out;
+    .card-box p, .card-box span, .card-box h3, .card-box h4, .card-box div {
+        color: #f0f6fc !important;
+        line-height: 1.6;
     }
 
-    .glowing-spinner {
-        width: 60px;
-        height: 60px;
-        border: 4px solid #21262d;
-        border-top: 4px solid #38bdf8;
-        border-right: 4px solid #a855f7;
-        border-radius: 50%;
-        animation: spinRing 0.9s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
-        margin-bottom: 20px;
-    }
-
-    .auth-pulse-text {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #38bdf8 !important;
-        letter-spacing: 0.5px;
-        animation: textPulse 1.2s ease-in-out infinite alternate;
-    }
-
-    .auth-sub-pulse {
-        font-size: 0.9rem;
-        color: #94a3b8 !important;
-        margin-top: 8px;
-    }
-
-    @keyframes spinRing {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    @keyframes textPulse {
-        0% { opacity: 0.6; transform: scale(0.98); }
-        100% { opacity: 1; transform: scale(1.02); }
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(12px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Inputs & Selectbox */
-    .stTextInput input, 
-    div[data-baseweb="select"] > div {
+    /* Text Inputs & Dropdown container text visibility */
+    .stTextInput input {
         background-color: #21262d !important;
         color: #ffffff !important;
+        border: 1px solid #484f58 !important;
+        border-radius: 8px !important;
+        font-size: 1rem !important;
+    }
+
+    .stTextInput input::placeholder {
+        color: #8b949e !important;
+    }
+
+    div[data-baseweb="select"] > div {
+        background-color: #21262d !important;
         border: 1px solid #484f58 !important;
         border-radius: 8px !important;
     }
@@ -134,6 +95,7 @@ st.markdown("""
         color: #ffffff !important;
     }
 
+    /* Dropdown popup options */
     div[data-baseweb="popover"],
     div[data-baseweb="popover"] > div,
     ul[role="listbox"] {
@@ -147,7 +109,6 @@ st.markdown("""
         color: #ffffff !important;
         font-weight: 600 !important;
         padding: 10px 14px !important;
-        cursor: pointer !important;
     }
 
     li[role="option"]:hover, div[role="option"]:hover {
@@ -155,6 +116,7 @@ st.markdown("""
         color: #ffffff !important;
     }
 
+    /* Action Buttons */
     .stButton > button {
         background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%) !important;
         color: #ffffff !important;
@@ -162,14 +124,9 @@ st.markdown("""
         border: 1px solid #a855f7 !important;
         border-radius: 8px !important;
         width: 100% !important;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 0 20px rgba(168, 85, 247, 0.6) !important;
-    }
-
+    /* Expanders & Output text visibility */
     div[data-testid="stExpander"] {
         background-color: #161b22 !important;
         border: 1px solid #30363d !important;
@@ -188,6 +145,43 @@ st.markdown("""
         padding: 3px 6px !important;
         border-radius: 4px !important;
         font-weight: 600 !important;
+    }
+
+    /* Animated Loader Styles */
+    .auth-loader-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        background: rgba(22, 27, 34, 0.95);
+        border: 2px solid #818cf8;
+        border-radius: 16px;
+        box-shadow: 0 0 30px rgba(129, 140, 248, 0.4);
+        margin: 20px auto;
+        max-width: 480px;
+    }
+
+    .glowing-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid #21262d;
+        border-top: 4px solid #38bdf8;
+        border-right: 4px solid #a855f7;
+        border-radius: 50%;
+        animation: spinRing 0.9s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+        margin-bottom: 20px;
+    }
+
+    .auth-pulse-text {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #38bdf8 !important;
+    }
+
+    @keyframes spinRing {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -318,18 +312,17 @@ print(rec.match_entities([{{"name": "Node Alpha", "score": 0.91}}]))""",
     return blueprints[:count]
 
 # =============================================================================
-# SCENARIO 1: NOT LOGGED IN -> ANIMATED GATEWAY
+# SCENARIO 1: NOT LOGGED IN -> GATEWAY
 # =============================================================================
 if not st.session_state.logged_in:
     st.markdown("<div class='glowing-title'>EduSpark AI</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sub-title'>Welcome to Next-Gen Industry Project Blueprint Hub. Authentication is required to enter.</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-title'>Next-Gen Industry Project Blueprint Hub. Authentication is required to enter.</div>", unsafe_allow_html=True)
 
     auth_col1, auth_col2 = st.columns([1.2, 1])
 
     with auth_col1:
-        tab_login, tab_register = st.tabs(["🔐 Sign In", "📝 Create New Account"])
+        tab_login, tab_register = st.tabs(["Sign In", "Create New Account"])
 
-        # --- LOGIN TAB ---
         with tab_login:
             with st.form("login_form"):
                 st.markdown("#### Login to Developer Portal")
@@ -342,27 +335,13 @@ if not st.session_state.logged_in:
                         st.warning("Please fill in both Username and Password.")
                     elif l_user in st.session_state.users_db and st.session_state.users_db[l_user] == l_pass:
                         anim_placeholder = st.empty()
-                        
-                        # --- Stage 1: Authenticating Animation ---
                         anim_placeholder.markdown("""
                         <div class='auth-loader-container'>
                             <div class='glowing-spinner'></div>
-                            <div class='auth-pulse-text'>Verifying Security Credentials...</div>
-                            <div class='auth-sub-pulse'>Establishing encrypted session token</div>
+                            <div class='auth-pulse-text'>Verifying Credentials...</div>
                         </div>
                         """, unsafe_allow_html=True)
-                        time.sleep(1.0)
-                        
-                        # --- Stage 2: Success Animation & Confetti ---
-                        anim_placeholder.markdown("""
-                        <div class='auth-loader-container' style='border-color: #10b981; box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);'>
-                            <div style='font-size: 2.8rem; margin-bottom: 10px;'>🔓</div>
-                            <div class='auth-pulse-text' style='color: #10b981 !important;'>Access Granted! Welcome back.</div>
-                            <div class='auth-sub-pulse'>Launching EduSpark workspace...</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        st.balloons()
-                        time.sleep(1.0)
+                        time.sleep(0.8)
 
                         st.session_state.logged_in = True
                         st.session_state.username = l_user.title()
@@ -371,7 +350,6 @@ if not st.session_state.logged_in:
                     else:
                         st.error("Invalid Username or Password. Please register if you are new.")
 
-        # --- REGISTER TAB ---
         with tab_register:
             with st.form("register_form"):
                 st.markdown("#### Create a New Account")
@@ -390,56 +368,44 @@ if not st.session_state.logged_in:
                     elif r_user in st.session_state.users_db:
                         st.error("Username already exists! Please choose another.")
                     else:
-                        anim_placeholder = st.empty()
-                        anim_placeholder.markdown("""
-                        <div class='auth-loader-container'>
-                            <div class='glowing-spinner'></div>
-                            <div class='auth-pulse-text'>Creating Developer Account...</div>
-                            <div class='auth-sub-pulse'>Allocating workspace storage</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        time.sleep(1.2)
-
                         st.session_state.users_db[r_user] = r_pass
                         st.session_state.logged_in = True
                         st.session_state.username = r_user.title()
                         st.session_state.current_page = "Generator"
-                        st.balloons()
                         st.rerun()
 
     with auth_col2:
         st.markdown("<div class='card-box'>", unsafe_allow_html=True)
-        st.markdown("### 🎓 Developer Workspace Perks")
-        st.write("• **Production System Architecture**: Directory designs & trees.")
-        st.write("• **Ready-to-Run Starter Code**: Production boilerplate files.")
-        st.write("• **Database & API Endpoints**: Relational schemas & REST specifications.")
-        st.write("• **Interview & Viva Preparation**: Questions & resume-ready impact metrics.")
-        st.markdown("---")
-        st.caption("🔒 Verified portal. Authentication required for entry.")
+        st.markdown("### Developer Workspace Perks")
+        st.write("• **Production Architecture**: Directory designs & tree structures.")
+        st.write("• **Ready Starter Code**: Complete working boilerplate files.")
+        st.write("• **Database & API Specs**: Relational schemas & REST specifications.")
+        st.write("• **Interview & Viva Prep**: Model viva questions & resume impact metrics.")
+        st.markdown("<hr style='border-color: #30363d;'>", unsafe_allow_html=True)
+        st.write("🔒 Verified portal. Authentication required for entry.")
         st.markdown("</div>", unsafe_allow_html=True)
 
 # =============================================================================
-# SCENARIO 2: LOGGED IN -> FULL APP DASHBOARD
+# SCENARIO 2: LOGGED IN -> DASHBOARD
 # =============================================================================
 else:
-    # Top Bar with User Info & Logout
     top_c1, top_c2, top_c3, top_c4 = st.columns([2, 1, 1, 1])
 
     with top_c1:
         st.markdown(f"<h3 style='margin:0; padding:0; background: linear-gradient(90deg,#38bdf8,#818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>EduSpark | Hi, {st.session_state.username}</h3>", unsafe_allow_html=True)
 
     with top_c2:
-        if st.button("🚀 Generator"):
+        if st.button("Generator"):
             st.session_state.current_page = "Generator"
             st.rerun()
 
     with top_c3:
-        if st.button("⚙️ Settings"):
+        if st.button("Settings"):
             st.session_state.current_page = "Settings"
             st.rerun()
 
     with top_c4:
-        if st.button("🚪 Logout"):
+        if st.button("Logout"):
             st.session_state.logged_in = False
             st.session_state.username = ""
             st.session_state.current_page = "Generator"
@@ -447,7 +413,6 @@ else:
 
     st.markdown("<hr style='margin-top: 5px; margin-bottom: 25px; border-color: #30363d;'>", unsafe_allow_html=True)
 
-    # --- VIEW 1: GENERATOR ---
     if st.session_state.current_page == "Generator":
         st.markdown("<div class='glowing-title'>Blueprint Engine</div>", unsafe_allow_html=True)
         st.markdown("<div class='sub-title'>Generate complete production architectures tailored to your requirements.</div>", unsafe_allow_html=True)
@@ -477,7 +442,7 @@ else:
                     for idx, proj in enumerate(blueprints, 1):
                         with st.expander(f"Blueprint #{idx}: {proj['title']}", expanded=True):
                             st.markdown(f"#### {proj['title']}")
-                            st.caption(f"**Complexity:** `{proj['complexity']}` | **Category:** `{subject.title()}`")
+                            st.caption(f"Complexity: `{proj['complexity']}` | Category: `{subject.title()}`")
                             st.info(proj['tagline'])
 
                             st.markdown("---")
@@ -489,7 +454,6 @@ else:
                             with c2:
                                 st.markdown("##### Recommended Tech Stack")
                                 tech_badges = " ".join([f"`{t}`" for t in proj["tech_stack"]])
-                                tech_badges = tech_badges if tech_badges else "`Core`"
                                 st.write(tech_badges)
 
                             st.markdown("---")
@@ -514,7 +478,6 @@ else:
                             for item in proj["interview_prep"]:
                                 st.write(f"• {item}")
 
-    # --- VIEW 2: SETTINGS ---
     elif st.session_state.current_page == "Settings":
         st.markdown("<div class='glowing-title'>Account Settings</div>", unsafe_allow_html=True)
         st.markdown("<div class='sub-title'>Manage your developer profile and preferences.</div>", unsafe_allow_html=True)
