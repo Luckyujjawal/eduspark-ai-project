@@ -25,7 +25,7 @@ if "user_domain" not in st.session_state:
     st.session_state.user_domain = "Python"
 
 # -----------------------------------------------------------------------------
-# High-Contrast CSS (Text Visibility Fix)
+# High-Contrast CSS (Password Eye Icon & Text Visibility Fix)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -35,13 +35,11 @@ st.markdown("""
         color: #f0f6fc !important;
     }
 
-    /* Sabhi textual elements ko 100% white aur visible banayein */
     h1, h2, h3, h4, h5, h6, p, span, label, strong, b, em, li, div {
         color: #ffffff !important;
         opacity: 1 !important;
     }
 
-    /* Subtitle color contrast */
     .sub-title {
         color: #94a3b8 !important;
         font-size: 1.15rem;
@@ -57,7 +55,6 @@ st.markdown("""
         margin-bottom: 5px;
     }
 
-    /* Cards & Containers me pure text ko crystal clear white karna */
     div[data-testid="stForm"], .card-box {
         background-color: #161b22 !important;
         border: 2px solid #30363d !important;
@@ -72,7 +69,7 @@ st.markdown("""
         line-height: 1.6;
     }
 
-    /* Text Inputs & Dropdown container text visibility */
+    /* Text Inputs Container */
     .stTextInput input {
         background-color: #21262d !important;
         color: #ffffff !important;
@@ -83,6 +80,30 @@ st.markdown("""
 
     .stTextInput input::placeholder {
         color: #8b949e !important;
+    }
+
+    /* PASSWORD SHOW / HIDE (EYE ICON) VISIBILITY FIX */
+    div[data-testid="stTextInput"] button,
+    div[data-baseweb="input"] button {
+        background-color: transparent !important;
+        border: none !important;
+        color: #38bdf8 !important;
+        box-shadow: none !important;
+    }
+
+    div[data-testid="stTextInput"] button:hover,
+    div[data-baseweb="input"] button:hover {
+        background-color: rgba(56, 189, 248, 0.15) !important;
+        border-radius: 4px !important;
+    }
+
+    div[data-testid="stTextInput"] svg,
+    div[data-baseweb="input"] svg {
+        fill: #38bdf8 !important;
+        stroke: #38bdf8 !important;
+        width: 20px !important;
+        height: 20px !important;
+        opacity: 1 !important;
     }
 
     div[data-baseweb="select"] > div {
@@ -116,7 +137,8 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-    /* Action Buttons */
+    /* Primary Submit Buttons */
+    div[data-testid="stForm"] button[kind="primaryFormSubmit"],
     .stButton > button {
         background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%) !important;
         color: #ffffff !important;
@@ -147,7 +169,7 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* Animated Loader Styles */
+    /* Loader Box */
     .auth-loader-container {
         display: flex;
         flex-direction: column;
