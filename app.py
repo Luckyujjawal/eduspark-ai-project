@@ -8,7 +8,7 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
-# User Storage & Session State
+# User Storage and Session State
 # -----------------------------------------------------------------------------
 if "users_db" not in st.session_state:
     st.session_state.users_db = {
@@ -28,10 +28,10 @@ if "user_email" not in st.session_state:
 if "user_domain" not in st.session_state:
     st.session_state.user_domain = "Python"
 if "page" not in st.session_state:
-    st.session_state.page = "🏠 Home"
+    st.session_state.page = "Login / Register"
 
 # -----------------------------------------------------------------------------
-# High-Contrast CSS Styling (Safe Inputs & Themes)
+# Styling (Clean Dark Theme without Emoji)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -63,7 +63,6 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* Fixed Dark Input Box & Text */
     div[data-testid="stTextInput"] input,
     div[data-baseweb="input"] input,
     input {
@@ -254,39 +253,120 @@ def verify_user_login(login_id, password):
     return None, None
 
 # -----------------------------------------------------------------------------
-# DEDICATED PAGE NAVIGATION (SIDEBAR ROUTER)
+# Dedicated Page Router (Sidebar)
 # -----------------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### 🌐 EduSpark Portal")
+    st.markdown("### Navigation Portal")
     if st.session_state.logged_in:
-        st.write(f"Logged in as: **{st.session_state.username}**")
+        st.write(f"Active Account: **{st.session_state.username}**")
         available_pages = [
-            "🏠 Home",
-            "🚀 Blueprint Generator",
-            "⚙️ Settings",
-            "🚪 Logout"
+            "Home",
+            "Blueprint Generator",
+            "Settings",
+            "Logout"
         ]
     else:
-        st.caption("Status: Guest Mode")
+        st.caption("Status: Unauthenticated")
         available_pages = [
-            "🏠 Home",
-            "🔐 Login / Register"
+            "Login / Register",
+            "Home"
         ]
 
-    # Dedicated page navigation selection
     selected_page = st.radio(
-        "Go to Page:",
+        "Select Page:",
         available_pages,
         index=available_pages.index(st.session_state.page) if st.session_state.page in available_pages else 0
     )
     st.session_state.page = selected_page
     st.markdown("---")
-    st.caption("EduSpark AI Multi-Page Hub")
+    st.caption("EduSpark AI Multi-Page Platform")
 
 # =============================================================================
-# PAGE 1: HOME PAGE
+# SCENARIO A: LOGIN / REGISTER PAGE (Default Landing View)
 # =============================================================================
-if st.session_state.page == "🏠 Home":
+if st.session_state.page == "Login / Register":
+    st.markdown("<div class='glowing-title'>Authentication Gateway</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-title'>Please sign in with your Username or Gmail address, or create a new student profile.</div>", unsafe_allow_html=True)
+
+    col1, col2 = st.columns([1.3, 1])
+
+    with col1:
+        tab_login, tab_register = st.tabs(["Sign In", "Create New Account"])
+
+        with tab_login:
+            with st.form("dedicated_login_form"):
+                st.markdown("#### Developer Portal Sign In")
+                login_id = st.text_input("Username or Gmail Address", placeholder="e.g. ujjawal or ujjawal@gmail.com").strip()
+                l_pass = st.text_input("Password", type="password", placeholder="Enter your password").strip()
+                login_btn = st.form_submit_button("Sign In to Platform", type="primary")
+
+                if login_btn:
+                    if not login_id or not l_pass:
+                        st.warning("Please enter both Username/Gmail and Password.")
+                    else:
+                        verified_name, verified_email = verify_user_login(login_id, l_pass)
+                        if verified_name:
+                            st.session_state.logged_in = True
+                            st.session_state.username = verified_name
+                            st.session_state.user_email = verified_email
+                            st.session_state.page = "Blueprint Generator"
+                            st.success(f"Welcome back, {verified_name}! Redirecting to Workspace...")
+                            time.sleep(0.5)
+                            st.rerun()
+                        else:
+                            st.error("Invalid credentials. Please verify your details or register a new account.")
+
+        with tab_register:
+            with st.form("dedicated_reg_form"):
+                st.markdown("#### New User Registration")
+                reg_name = st.text_input("Full Name", placeholder="e.g. Ujjawal Jha").strip()
+                reg_user = st.text_input("Choose Username", placeholder="e.g. ujjawal99").strip().lower()
+                reg_email = st.text_input("Gmail Address", placeholder="e.g. ujjawal@gmail.com").strip().lower()
+                r_pass = st.text_input("Create Password", type="password", placeholder="Minimum 4 characters").strip()
+                r_pass2 = st.text_input("Confirm Password", type="password", placeholder="Re-enter password").strip()
+                reg_btn = st.form_submit_button("Register & Activate Workspace", type="primary")
+
+                if reg_btn:
+                    if not reg_name or not reg_user or not reg_email or not r_pass:
+                        st.warning("All input fields are required.")
+                    elif "@" not in reg_email or "." not in reg_email:
+                        st.warning("Please enter a valid Gmail or Email address.")
+                    elif len(r_pass) < 4:
+                        st.warning("Password must be at least 4 characters long.")
+                    elif r_pass != r_pass2:
+                        st.error("Passwords do not match. Please recheck.")
+                    elif reg_user in st.session_state.users_db:
+                        st.error("Username is already taken. Please choose another username.")
+                    elif any(u["email"] == reg_email for u in st.session_state.users_db.values()):
+                        st.error("This email address is already registered. Please sign in.")
+                    else:
+                        st.session_state.users_db[reg_user] = {
+                            "email": reg_email,
+                            "password": r_pass,
+                            "name": reg_name
+                        }
+                        st.session_state.logged_in = True
+                        st.session_state.username = reg_name
+                        st.session_state.user_email = reg_email
+                        st.session_state.page = "Blueprint Generator"
+                        st.success("Account created successfully! Redirecting to Workspace...")
+                        time.sleep(0.5)
+                        st.rerun()
+
+    with col2:
+        st.markdown("<div class='card-box'>", unsafe_allow_html=True)
+        st.markdown("### Access Specifications")
+        st.write("- **Dual Sign-In:** Authenticate using registered Username or Gmail address.")
+        st.write("- **Gated Environment:** Architecture and starter code are strictly protected.")
+        st.write("- **Instant Session:** Immediate workspace authorization upon credential verification.")
+        st.markdown("<hr style='border-color: #30363d;'>", unsafe_allow_html=True)
+        st.caption("Please sign in or register to access the Blueprint Generator and Settings.")
+        st.markdown("</div>", unsafe_allow_html=True)
+
+# =============================================================================
+# SCENARIO B: HOME PAGE (Overview)
+# =============================================================================
+elif st.session_state.page == "Home":
     st.markdown("<div class='glowing-title'>EduSpark AI</div>", unsafe_allow_html=True)
     st.markdown("<div class='sub-title'>Next-Gen Project Blueprint, System Architecture & Code Generation Platform.</div>", unsafe_allow_html=True)
 
@@ -300,102 +380,22 @@ if st.session_state.page == "🏠 Home":
 
     st.markdown("---")
     if not st.session_state.logged_in:
-        st.info("💡 Generator access karne ke liye kripya **Login / Register Page** par jayein.")
+        st.info("Authentication required. Please navigate to the Login / Register page to access tools.")
     else:
-        st.success(f"Aap logged-in hain as **{st.session_state.username}**. Sidebar se **Blueprint Generator** select karein.")
+        st.success(f"Authenticated as {st.session_state.username}. Select Blueprint Generator from the sidebar to continue.")
 
 # =============================================================================
-# PAGE 2: LOGIN / REGISTER PAGE (DEDICATED)
+# SCENARIO C: BLUEPRINT GENERATOR PAGE (Gated Workspace)
 # =============================================================================
-elif st.session_state.page == "🔐 Login / Register":
-    st.markdown("<div class='glowing-title'>Authentication Page</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sub-title'>Sign in with your Username or Gmail address, or create a new student account.</div>", unsafe_allow_html=True)
-
-    col1, col2 = st.columns([1.3, 1])
-
-    with col1:
-        tab_login, tab_register = st.tabs(["🔐 Sign In", "📝 Create New Account"])
-
-        with tab_login:
-            with st.form("dedicated_login_form"):
-                st.markdown("#### Login to Developer Portal")
-                login_id = st.text_input("Username or Gmail", placeholder="e.g. lucky or lucky@gmail.com").strip()
-                l_pass = st.text_input("Password", type="password", placeholder="Enter password").strip()
-                login_btn = st.form_submit_button("Sign In to Portal", type="primary")
-
-                if login_btn:
-                    if not login_id or not l_pass:
-                        st.warning("Please fill in both Username/Gmail and Password.")
-                    else:
-                        verified_name, verified_email = verify_user_login(login_id, l_pass)
-                        if verified_name:
-                            st.session_state.logged_in = True
-                            st.session_state.username = verified_name
-                            st.session_state.user_email = verified_email
-                            st.session_state.page = "🚀 Blueprint Generator"
-                            st.success(f"Welcome back, {verified_name}! Redirecting to Generator Page...")
-                            time.sleep(0.5)
-                            st.rerun()
-                        else:
-                            st.error("Invalid credentials. Please verify your details.")
-
-        with tab_register:
-            with st.form("dedicated_reg_form"):
-                st.markdown("#### Create a New Account")
-                reg_name = st.text_input("Full Name", placeholder="e.g. Ujjawal Jha").strip()
-                reg_user = st.text_input("Choose Username", placeholder="e.g. ujjawal").strip().lower()
-                reg_email = st.text_input("Gmail Address", placeholder="e.g. ujjawal@gmail.com").strip().lower()
-                r_pass = st.text_input("Create Password", type="password", placeholder="Min 4 characters").strip()
-                r_pass2 = st.text_input("Confirm Password", type="password", placeholder="Re-enter password").strip()
-                reg_btn = st.form_submit_button("Register & Open Generator", type="primary")
-
-                if reg_btn:
-                    if not reg_name or not reg_user or not reg_email or not r_pass:
-                        st.warning("All fields are required.")
-                    elif "@" not in reg_email or "." not in reg_email:
-                        st.warning("Please enter a valid Gmail / Email.")
-                    elif len(r_pass) < 4:
-                        st.warning("Password must be at least 4 characters long.")
-                    elif r_pass != r_pass2:
-                        st.error("Passwords do not match!")
-                    elif reg_user in st.session_state.users_db:
-                        st.error("Username already registered! Choose another.")
-                    elif any(u["email"] == reg_email for u in st.session_state.users_db.values()):
-                        st.error("This Gmail is already registered. Please login instead.")
-                    else:
-                        st.session_state.users_db[reg_user] = {
-                            "email": reg_email,
-                            "password": r_pass,
-                            "name": reg_name
-                        }
-                        st.session_state.logged_in = True
-                        st.session_state.username = reg_name
-                        st.session_state.user_email = reg_email
-                        st.session_state.page = "🚀 Blueprint Generator"
-                        st.success("Account created successfully! Opening Generator Page...")
-                        time.sleep(0.5)
-                        st.rerun()
-
-    with col2:
-        st.markdown("<div class='card-box'>", unsafe_allow_html=True)
-        st.markdown("### 🎓 Dedicated Security Portal")
-        st.write("• **Dual Authentication**: Access using either Username or Gmail.")
-        st.write("• **Production Access**: Opens complete architecture & code.")
-        st.write("• **Private Workspace**: Credentials stored securely in session.")
-        st.markdown("</div>", unsafe_allow_html=True)
-
-# =============================================================================
-# PAGE 3: BLUEPRINT GENERATOR (DEDICATED WORKSPACE)
-# =============================================================================
-elif st.session_state.page == "🚀 Blueprint Generator":
+elif st.session_state.page == "Blueprint Generator":
     if not st.session_state.logged_in:
-        st.warning("⚠️ Access Denied! Please login first.")
-        st.session_state.page = "🔐 Login / Register"
+        st.warning("Access Denied! Please authenticate via the Login / Register page.")
+        st.session_state.page = "Login / Register"
         st.rerun()
 
     st.markdown(f"<div class='glowing-title'>Blueprint Generator | Hi, {st.session_state.username}</div>", unsafe_allow_html=True)
     if st.session_state.user_email:
-        st.caption(f"Account: `{st.session_state.user_email}`")
+        st.caption(f"Authenticated Account: `{st.session_state.user_email}`")
     st.markdown("<div class='sub-title'>Generate complete production architectures tailored to your requirements.</div>", unsafe_allow_html=True)
 
     with st.form("dedicated_generator_form"):
@@ -458,22 +458,22 @@ elif st.session_state.page == "🚀 Blueprint Generator":
                         st.markdown("---")
                         st.markdown("##### 5. Viva / Interview Questions & Resume Points")
                         for item in proj["interview_prep"]:
-                            st.write(f"• {item}")
+                            st.write(f"- {item}")
 
 # =============================================================================
-# PAGE 4: SETTINGS PAGE (DEDICATED)
+# SCENARIO D: SETTINGS PAGE
 # =============================================================================
-elif st.session_state.page == "⚙️ Settings":
+elif st.session_state.page == "Settings":
     if not st.session_state.logged_in:
-        st.warning("Please login to access account settings.")
-        st.session_state.page = "🔐 Login / Register"
+        st.warning("Please sign in to access account preferences.")
+        st.session_state.page = "Login / Register"
         st.rerun()
 
     st.markdown("<div class='glowing-title'>Account Settings</div>", unsafe_allow_html=True)
     st.markdown("<div class='sub-title'>Manage your developer profile and default blueprint preferences.</div>", unsafe_allow_html=True)
 
     with st.form("dedicated_settings_form"):
-        st.markdown("### Profile Settings")
+        st.markdown("### Profile Preferences")
         new_name = st.text_input("Display Name", value=st.session_state.username)
         default_domain = st.selectbox(
             "Default Domain",
@@ -485,34 +485,34 @@ elif st.session_state.page == "⚙️ Settings":
         if save_btn:
             st.session_state.username = new_name
             st.session_state.user_domain = default_domain
-            st.success("Settings saved successfully!")
+            st.success("Preferences updated successfully!")
 
 # =============================================================================
-# PAGE 5: LOGOUT PAGE (DEDICATED)
+# SCENARIO E: LOGOUT PAGE
 # =============================================================================
-elif st.session_state.page == "🚪 Logout":
-    st.markdown("<div class='glowing-title'>Logout Confirmation</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sub-title'>Are you sure you want to end your active session?</div>", unsafe_allow_html=True)
+elif st.session_state.page == "Logout":
+    st.markdown("<div class='glowing-title'>Sign Out Confirmation</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-title'>Are you sure you want to terminate your active developer session?</div>", unsafe_allow_html=True)
 
     st.markdown("<div class='card-box'>", unsafe_allow_html=True)
-    st.write(f"Logged in user: **{st.session_state.username}**")
+    st.write(f"Active User: **{st.session_state.username}**")
     if st.session_state.user_email:
-        st.write(f"Email: **{st.session_state.user_email}**")
-    st.write("Logging out will lock the Blueprint Generator until you authenticate again.")
+        st.write(f"Registered Email: **{st.session_state.user_email}**")
+    st.write("Terminating this session will protect your workspace until your next authentication.")
     st.markdown("</div>", unsafe_allow_html=True)
 
     col_l1, col_l2 = st.columns([1, 1])
     with col_l1:
-        if st.button("Confirm Logout & Sign Out", type="primary"):
+        if st.button("Confirm Sign Out", type="primary"):
             st.session_state.logged_in = False
             st.session_state.username = ""
             st.session_state.user_email = ""
-            st.session_state.page = "🏠 Home"
-            st.success("You have been safely logged out. Redirecting to Home...")
+            st.session_state.page = "Login / Register"
+            st.success("Session ended successfully. Redirecting to Authentication...")
             time.sleep(0.5)
             st.rerun()
 
     with col_l2:
-        if st.button("Cancel (Back to Workspace)"):
-            st.session_state.page = "🚀 Blueprint Generator"
+        if st.button("Cancel & Return to Generator"):
+            st.session_state.page = "Blueprint Generator"
             st.rerun()
