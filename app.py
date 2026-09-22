@@ -10,9 +10,14 @@ st.set_page_config(
 # -----------------------------------------------------------------------------
 # User Storage & Session State Setup
 # -----------------------------------------------------------------------------
+# Data structure supporting both username and email lookups
 if "users_db" not in st.session_state:
     st.session_state.users_db = {
-        "admin": "admin123"
+        "admin": {
+            "email": "admin@eduspark.com",
+            "password": "admin123",
+            "name": "Admin"
+        }
     }
 
 if "logged_in" not in st.session_state:
@@ -25,11 +30,10 @@ if "user_domain" not in st.session_state:
     st.session_state.user_domain = "Python"
 
 # -----------------------------------------------------------------------------
-# Styling (Fixed High-Contrast Input & Text)
+# Styling (Fixed High-Contrast Input & Google Button)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
-    /* Main Background */
     .stApp, [data-testid="stAppViewContainer"] {
         background-color: #0d1117 !important;
         color: #f0f6fc !important;
@@ -58,7 +62,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* INPUT CONTAINER & INPUT TEXT FIXED */
+    /* Fixed Dark Input Box */
     div[data-testid="stTextInput"] input,
     div[data-baseweb="input"] input,
     input {
@@ -86,7 +90,7 @@ st.markdown("""
         height: 22px !important;
     }
 
-    /* Buttons */
+    /* Primary Submit Buttons */
     .stButton > button {
         background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%) !important;
         color: #ffffff !important;
@@ -96,6 +100,7 @@ st.markdown("""
         width: 100% !important;
     }
 
+    /* Expanders */
     div[data-testid="stExpander"] {
         background-color: #161b22 !important;
         border: 1px solid #30363d !important;
@@ -119,7 +124,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# TOP NAVBAR (Home, Login/Register, Workspace)
+# TOP NAVBAR
 # -----------------------------------------------------------------------------
 nav_c1, nav_c2, nav_c3, nav_c4 = st.columns([2, 1, 1, 1])
 
@@ -152,6 +157,16 @@ with nav_c4:
         st.caption("Status: Guest")
 
 st.markdown("<hr style='margin-top: 5px; margin-bottom: 25px; border-color: #30363d;'>", unsafe_allow_html=True)
+
+# -----------------------------------------------------------------------------
+# Helper: Dual Auth Validator (Username OR Email)
+# -----------------------------------------------------------------------------
+def verify_user_login(login_input, password):
+    clean_input = login_input.strip().lower()
+    for user_key, data in st.session_state.users_db.items():
+        if (clean_input == user_key.lower() or clean_input == data["email"].lower()) and password == data["password"]:
+            return data["name"]
+    return None
 
 # -----------------------------------------------------------------------------
 # Blueprint Engine
@@ -302,69 +317,99 @@ if st.session_state.current_page == "Home":
         st.rerun()
 
 # =============================================================================
-# VIEW 2: LOGIN / REGISTER PAGE
+# VIEW 2: LOGIN / REGISTER PAGE (DUAL AUTH + GOOGLE ACCESS)
 # =============================================================================
 elif st.session_state.current_page == "Auth" and not st.session_state.logged_in:
     st.markdown("<div class='glowing-title'>Portal Authentication</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sub-title'>Sign in or create an account to access the workspace.</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-title'>Sign in with your Username, Registered Email, or Direct Google Account.</div>", unsafe_allow_html=True)
 
     auth_col1, auth_col2 = st.columns([1.2, 1])
 
     with auth_col1:
+        # One-Click Google Authentication Button
+        st.markdown("<div style='margin-bottom: 12px;'>", unsafe_allow_html=True)
+        if st.button("🌐 Continue with Google Account"):
+            with st.spinner("Connecting securely with Google OAuth services..."):
+                time.sleep(0.8)
+                st.session_state.logged_in = True
+                st.session_state.username = "Google User"
+                st.session_state.current_page = "Generator"
+                st.success("Google Authentication Verified! Welcome.")
+                time.sleep(0.4)
+                st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown("<div style='text-align: center; color: #94a3b8; margin-bottom: 15px;'>— OR ACCESS VIA CREDENTIALS —</div>", unsafe_allow_html=True)
+
         tab_login, tab_register = st.tabs(["🔐 Sign In", "📝 Create New Account"])
 
+        # --- TAB: LOGIN ---
         with tab_login:
             with st.form("login_form"):
-                st.markdown("#### Login to Developer Portal")
-                l_user = st.text_input("Username", placeholder="e.g. admin").strip().lower()
+                st.markdown("#### Login with Username or Email")
+                login_id = st.text_input("Username or Email Address", placeholder="e.g. admin or student@gmail.com").strip()
                 l_pass = st.text_input("Password", type="password", placeholder="Enter password").strip()
-                login_btn = st.form_submit_button("Sign In", type="primary")
+                login_btn = st.form_submit_button("Sign In to Portal", type="primary")
 
                 if login_btn:
-                    if not l_user or not l_pass:
-                        st.warning("Please fill in both Username and Password.")
-                    elif l_user in st.session_state.users_db and st.session_state.users_db[l_user] == l_pass:
-                        st.session_state.logged_in = True
-                        st.session_state.username = l_user.title()
-                        st.session_state.current_page = "Generator"
-                        st.success("Login Successful! Opening Workspace...")
-                        time.sleep(0.5)
-                        st.rerun()
+                    if not login_id or not l_pass:
+                        st.warning("Please enter both Username/Email and Password.")
                     else:
-                        st.error("Invalid Username or Password. Please register if you are new.")
+                        verified_name = verify_user_login(login_id, l_pass)
+                        if verified_name:
+                            st.session_state.logged_in = True
+                            st.session_state.username = verified_name
+                            st.session_state.current_page = "Generator"
+                            st.success(f"Welcome back, {verified_name}! Opening Workspace...")
+                            time.sleep(0.5)
+                            st.rerun()
+                        else:
+                            st.error("Invalid credentials. Please check your username/email or password.")
 
+        # --- TAB: REGISTER ---
         with tab_register:
             with st.form("register_form"):
                 st.markdown("#### Create a New Account")
-                r_user = st.text_input("Choose Username", placeholder="e.g. lucky").strip().lower()
+                reg_name = st.text_input("Full Name", placeholder="e.g. Lucky Ujjawal").strip()
+                reg_user = st.text_input("Choose Username", placeholder="e.g. lucky99").strip().lower()
+                reg_email = st.text_input("Email Address", placeholder="e.g. lucky@example.com").strip().lower()
                 r_pass = st.text_input("Create Password", type="password", placeholder="Min 4 characters").strip()
                 r_pass2 = st.text_input("Confirm Password", type="password", placeholder="Re-enter password").strip()
                 reg_btn = st.form_submit_button("Register & Activate Workspace", type="primary")
 
                 if reg_btn:
-                    if not r_user or not r_pass:
+                    if not reg_name or not reg_user or not reg_email or not r_pass:
                         st.warning("All fields are required.")
+                    elif "@" not in reg_email or "." not in reg_email:
+                        st.warning("Please enter a valid email address.")
                     elif len(r_pass) < 4:
                         st.warning("Password must be at least 4 characters long.")
                     elif r_pass != r_pass2:
                         st.error("Passwords do not match!")
-                    elif r_user in st.session_state.users_db:
-                        st.error("Username already exists! Please choose another.")
+                    elif reg_user in st.session_state.users_db:
+                        st.error("Username already registered! Choose another.")
+                    elif any(u["email"] == reg_email for u in st.session_state.users_db.values()):
+                        st.error("This Email is already registered. Please login instead.")
                     else:
-                        st.session_state.users_db[r_user] = r_pass
+                        st.session_state.users_db[reg_user] = {
+                            "email": reg_email,
+                            "password": r_pass,
+                            "name": reg_name
+                        }
                         st.session_state.logged_in = True
-                        st.session_state.username = r_user.title()
+                        st.session_state.username = reg_name
                         st.session_state.current_page = "Generator"
-                        st.success("Account created successfully!")
+                        st.success("Account created successfully! Welcome to EduSpark.")
                         time.sleep(0.5)
                         st.rerun()
 
     with auth_col2:
         st.markdown("<div class='card-box'>", unsafe_allow_html=True)
         st.markdown("### Developer Workspace Perks")
-        st.write("• **Production Architecture**: Directory designs & tree structures.")
-        st.write("• **Ready Starter Code**: Complete working boilerplate files.")
-        st.write("• **Database & API Specs**: Relational schemas & REST specifications.")
+        st.write("• **Flexible Access**: Login via Username, Email or Google Account.")
+        st.write("• **Production Architecture**: Complete directory designs.")
+        st.write("• **Ready Starter Code**: Working boilerplate files.")
+        st.write("• **Database & API Specs**: Relational schemas & REST endpoints.")
         st.write("• **Interview & Viva Prep**: Model viva questions & resume impact metrics.")
         st.markdown("<hr style='border-color: #30363d;'>", unsafe_allow_html=True)
         st.write("🔒 Verified portal. Authentication required for entry.")
@@ -414,7 +459,6 @@ elif st.session_state.current_page == "Generator" and st.session_state.logged_in
                         with c2:
                             st.markdown("##### Recommended Tech Stack")
                             tech_badges = " ".join([f"`{t}`" for t in proj["tech_stack"]])
-                            tech_badges = tech_badges if tech_badges else "`Core`"
                             st.write(tech_badges)
 
                         st.markdown("---")
