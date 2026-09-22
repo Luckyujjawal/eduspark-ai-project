@@ -8,6 +8,18 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
+# Session State Initialization (Auth & Navigation)
+# -----------------------------------------------------------------------------
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+if "username" not in st.session_state:
+    st.session_state.username = "Guest User"
+if "current_page" not in st.session_state:
+    st.session_state.current_page = "Home"
+if "user_domain" not in st.session_state:
+    st.session_state.user_domain = "Python"
+
+# -----------------------------------------------------------------------------
 # High-Contrast CSS Styling
 # -----------------------------------------------------------------------------
 st.markdown("""
@@ -36,11 +48,12 @@ st.markdown("""
         margin-bottom: 25px;
     }
 
-    div[data-testid="stForm"] {
+    div[data-testid="stForm"], .card-box {
         background-color: #161b22 !important;
         border: 2px solid #30363d !important;
         border-radius: 12px;
         padding: 25px;
+        margin-bottom: 20px;
     }
 
     .stTextInput input, 
@@ -85,11 +98,11 @@ st.markdown("""
         background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%) !important;
         color: #ffffff !important;
         font-weight: 800 !important;
-        font-size: 1.2rem !important;
+        font-size: 1.1rem !important;
         border: 2px solid #a855f7 !important;
-        padding: 14px 28px !important;
+        padding: 12px 24px !important;
         border-radius: 10px !important;
-        box-shadow: 0 0 15px rgba(168, 85, 247, 0.6) !important;
+        box-shadow: 0 0 15px rgba(168, 85, 247, 0.5) !important;
         width: 100% !important;
     }
 
@@ -121,46 +134,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# Header
-# -----------------------------------------------------------------------------
-st.markdown("<div class='glowing-title'>EduSpark AI</div>", unsafe_allow_html=True)
-st.markdown("<div class='sub-title'>All-in-One Industry Project Blueprint, Architecture & Code Hub</div>", unsafe_allow_html=True)
-
-# Sidebar
-with st.sidebar:
-    st.title("Control Panel")
-    st.markdown("---")
-    st.markdown("**What EduSpark Generates:**")
-    st.markdown("- Complete System Architecture")
-    st.markdown("- Folder & File Tree Structure")
-    st.markdown("- Starter Code & Config Files")
-    st.markdown("- Database & API Specs")
-    st.markdown("- Resume Points & Viva Questions")
-    st.markdown("---")
-    st.caption("100% Comprehensive Guide — No External AI Needed")
-
-# -----------------------------------------------------------------------------
-# Input Form
-# -----------------------------------------------------------------------------
-with st.form("project_input_form"):
-    st.markdown("<h3 style='color: #ffffff !important; margin-bottom: 20px;'>Student Profile Settings</h3>", unsafe_allow_html=True)
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        subject = st.text_input("Subject / Domain", placeholder="e.g. Python, AI, Web Dev, Java, C++")
-    with col2:
-        skill_level = st.selectbox("Current Skill Level", ["Beginner", "Intermediate", "Advanced"])
-    with col3:
-        interests = st.text_input("Interests / Specialization", placeholder="e.g. Healthcare, Finance, Gaming, Cybersecurity")
-
-    num_ideas = st.slider("Number of Blueprints to Generate", min_value=1, max_value=3, value=2)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    submit_btn = st.form_submit_button("Generate Industry Blueprints", type="primary")
-
-# -----------------------------------------------------------------------------
-# Comprehensive Blueprint Generator Function
+# Blueprint Engine
 # -----------------------------------------------------------------------------
 def generate_master_blueprints(sub, lvl, interest, count):
     topic = interest.strip().title() if interest.strip() else "Modern Cloud"
@@ -183,48 +157,32 @@ def generate_master_blueprints(sub, lvl, interest, count):
             "folder_structure": f"""{low_topic}_system/
 │
 ├── app/
-│   ├── __init__.py
 │   ├── main.py               # Main entry point / API Gateway
 │   ├── config.py             # Environment configurations
 │   ├── models/               # Database ORM models
-│   │   ├── __init__.py
-│   │   └── {low_topic}_model.py
-│   ├── services/             # Core business logic & analytics
-│   │   ├── engine.py
-│   │   └── alert_service.py
-│   └── utils/
-│       └── helpers.py
-│
+│   └── services/             # Core business logic & analytics
 ├── tests/
 │   └── test_core.py          # Unit & integration test suite
-│
-├── .env.example              # Secret environment keys template
 ├── requirements.txt          # Package dependencies
 ├── Dockerfile                # Containerization setup
 └── README.md                 # Project docs and setup instructions""",
-            "starter_code": f"""# app/main.py - Core Pipeline & Engine
+            "starter_code": f"""# app/main.py - Core Pipeline
 import time
 from typing import Dict, Any
 
 class {topic.replace(' ', '')}Engine:
-    def __init__(self, debug: bool = True):
-        self.debug = debug
+    def __init__(self):
         self.state: Dict[str, Any] = {{}}
         print(f"[{domain} Engine] Initialized for {topic} pipeline...")
 
     def ingest_data(self, payload: Dict[str, Any]) -> bool:
-        \"\"\"Process incoming {topic} telemetry data.\"\"\"
         if not payload:
             return False
         self.state.update(payload)
         return True
 
     def run_diagnostics(self) -> Dict[str, str]:
-        \"\"\"Analyze parameters and trigger alerts if anomalies detected.\"\"\"
-        status = "HEALTHY"
-        # Example threshold trigger logic
-        if self.state.get("risk_score", 0) > 75:
-            status = "CRITICAL_ALERT"
+        status = "CRITICAL_ALERT" if self.state.get("risk_score", 0) > 75 else "HEALTHY"
         return {{"system": "{topic}", "status": status, "timestamp": str(time.time())}}
 
 if __name__ == "__main__":
@@ -232,10 +190,9 @@ if __name__ == "__main__":
     engine.ingest_data({{"metric_id": 101, "risk_score": 82}})
     print(engine.run_diagnostics())""",
             "db_api_design": [
-                f"DB Table `{low_topic}_records`: `id (PK)`, `name (VARCHAR)`, `status (VARCHAR)`, `score (FLOAT)`, `created_at (TIMESTAMP)`",
+                f"DB Table `{low_topic}_records`: `id (PK)`, `status (VARCHAR)`, `score (FLOAT)`, `created_at (TIMESTAMP)`",
                 f"API `POST /api/v1/{low_topic}/ingest`: Ingests real-time raw events and validates schema.",
-                f"API `GET /api/v1/{low_topic}/metrics`: Returns aggregated analytics for front-end charts.",
-                f"API `GET /api/v1/{low_topic}/health`: Service health-check and database connectivity ping."
+                f"API `GET /api/v1/{low_topic}/metrics`: Returns aggregated analytics for front-end charts."
             ],
             "roadmap": [
                 f"Phase 1 (Setup): Initialize repository, design DB schema, and setup virtual env.",
@@ -263,184 +220,225 @@ if __name__ == "__main__":
             "folder_structure": f"""{low_topic}_hub/
 │
 ├── src/
-│   ├── api/
-│   │   ├── router.py         # Endpoints definition
-│   │   └── deps.py           # Dependency injection & auth
-│   ├── core/
-│   │   ├── algorithms.py     # Recommendation & scoring logic
-│   │   └── database.py       # DB connection session
-│   └── schemas/
-│       └── payload.py        # Pydantic validation schemas
-│
-├── scripts/
-│   └── seed_data.py          # Database sample seeder
-│
-├── .github/workflows/ci.yml  # Automated CI/CD pipeline
+│   ├── api/router.py         # Endpoints definition
+│   ├── core/algorithms.py    # Recommendation & scoring logic
+│   └── schemas/payload.py    # Pydantic validation schemas
 ├── requirements.txt
 └── README.md""",
-            "starter_code": f"""# src/core/algorithms.py - Recommendation Engine
-from typing import List, Dict
+            "starter_code": f"""# src/core/algorithms.py
+from typing import List, Dict, Any
 
 class {topic.replace(' ', '')}Recommender:
     def __init__(self, threshold: float = 0.65):
         self.threshold = threshold
 
-    def match_entities(self, query: Dict[str, Any], pool: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        \"\"\"Scores and filters candidates based on {domain} logic.\"\"\"
-        results = []
-        for item in pool:
-            # Basic weight match algorithm
-            score = item.get("weight", 0.5)
-            if score >= self.threshold:
-                results.append({{"item": item.get("name"), "confidence": score}})
-        return sorted(results, key=lambda x: x["confidence"], reverse=True)
+    def match_entities(self, pool: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        results = [item for item in pool if item.get("score", 0.5) >= self.threshold]
+        return sorted(results, key=lambda x: x["score"], reverse=True)
 
-# Example usage
 rec = {topic.replace(' ', '')}Recommender()
-candidates = [{{"name": "Node A", "weight": 0.88}}, {{"name": "Node B", "weight": 0.45}}]
-print(rec.match_entities({{"target": "{topic}"}}, candidates))""",
+print(rec.match_entities([{{"name": "Node Alpha", "score": 0.91}}]))""",
             "db_api_design": [
-                f"DB Table `users`: `id (PK)`, `email (VARCHAR UNIQUE)`, `role (VARCHAR)`, `hashed_pw (VARCHAR)`",
-                f"DB Table `{low_topic}_items`: `id (PK)`, `title (VARCHAR)`, `attributes (JSONB)`, `score (FLOAT)`",
-                f"API `POST /api/v1/recommend`: Accepts user parameters and returns ranked recommendations.",
-                f"API `GET /api/v1/export/report`: Triggers asynchronous generation of summary PDF."
+                f"DB Table `users`: `id (PK)`, `email (VARCHAR UNIQUE)`, `role (VARCHAR)`",
+                f"DB Table `{low_topic}_items`: `id (PK)`, `title (VARCHAR)`, `attributes (JSONB)`",
+                f"API `POST /api/v1/recommend`: Returns ranked recommendations based on profile weights."
             ],
             "roadmap": [
                 "Phase 1 (Data Modeling): Build entity-relationship models and setup migration scripts.",
                 f"Phase 2 (Scoring Algorithms): Implement mathematical recommendation formulas for {topic}.",
                 "Phase 3 (Security & Cache): Add JWT authentication and Redis caching layer.",
-                "Phase 4 (CI/CD & Live Deployment): Configure automated GitHub actions for auto-deploy."
+                "Phase 4 (Live Deployment): Configure automated GitHub actions for auto-deploy."
             ],
             "interview_prep": [
                 f"Viva Question: Why use JSON/JSONB for {topic} item attributes?",
                 "Answer: It provides schema flexibility without requiring full table schema migrations.",
                 "Resume Bullet: 'Designed an algorithmic prediction hub achieving 99.8% API uptime with Redis caching.'"
             ]
-        },
-        {
-            "title": f"Next-Gen {topic} Testing, Simulation & Security Engine",
-            "tagline": f"Comprehensive {domain} workbench built to stress-test, simulate adversarial edge cases, and benchmark performance in {topic}.",
-            "complexity": f"{lvl} | 35-45 Dev Hours",
-            "features": [
-                f"Deterministic scenario simulator for real-world {topic} environments",
-                "Automated vulnerability and edge-case testing harness",
-                "Telemetry exporter with live CPU, memory, and latency metrics",
-                "Customizable test runners with pass/fail threshold analytics"
-            ],
-            "tech_stack": [f"{domain}", "PyTest", "NumPy", "Plotly", "Click / Typer CLI", "GitHub Actions"],
-            "folder_structure": f"""{low_topic}_simulator/
-│
-├── simulator/
-│   ├── engine.py             # Simulation execution loop
-│   ├── scenarios.py          # Pre-built stress scenarios
-│   └── metrics.py            # Latency & performance trackers
-│
-├── cli/
-│   └── runner.py             # CLI command parser
-│
-├── reports/                  # Generated benchmark graphs
-├── tests/
-└── setup.py""",
-            "starter_code": f"""# simulator/engine.py - Simulation Framework
-import random
-import time
-
-class {topic.replace(' ', '')}Simulator:
-    def __init__(self, cycles: int = 100):
-        self.cycles = cycles
-        self.logs = []
-
-    def execute_simulation(self):
-        print(f"Starting {topic} benchmark across {{self.cycles}} cycles...")
-        for i in range(self.cycles):
-            latency = random.uniform(5.0, 45.0)  # Simulated ms latency
-            self.logs.append({{"cycle": i + 1, "latency_ms": round(latency, 2)}})
-        
-        avg_lat = sum(x["latency_ms"] for x in self.logs) / len(self.logs)
-        return {{"total_cycles": self.cycles, "avg_latency_ms": round(avg_lat, 2), "status": "COMPLETED"}}
-
-if __name__ == "__main__":
-    sim = {topic.replace(' ', '')}Simulator(cycles=50)
-    print(sim.execute_simulation())""",
-            "db_api_design": [
-                "DB Table `sim_runs`: `run_id (UUID)`, `duration_sec (FLOAT)`, `passed (BOOLEAN)`, `log_url (TEXT)`",
-                f"CLI Command: `{low_topic}-sim --cycles 500 --env production`",
-                "Telemetry Output: Structured JSON log streamed to standard out or file sink."
-            ],
-            "roadmap": [
-                "Phase 1 (Core Engine): Construct the simulation event loop and state machine.",
-                f"Phase 2 (Scenario Suite): Code adversarial and stress-test scenarios for {topic}.",
-                "Phase 3 (CLI & Reporting): Build a CLI interface with automated visual report generation.",
-                "Phase 4 (Benchmarking): Execute end-to-end load tests and document performance limits."
-            ],
-            "interview_prep": [
-                "Viva Question: How did you ensure the simulation results are reproducible?",
-                "Answer: By fixing random seed generators and isolating environment dependencies.",
-                "Resume Bullet: 'Architected an automated simulation harness that reduced regression testing time by 40%.'"
-            ]
         }
     ]
-
     return blueprints[:count]
 
 # -----------------------------------------------------------------------------
-# Execution & Rich Rendering
+# Sidebar Navigation
 # -----------------------------------------------------------------------------
-if submit_btn:
-    if not subject:
-        st.warning("Please fill the Subject / Domain field.")
+with st.sidebar:
+    st.title("EduSpark Suite")
+    st.caption("Next-Gen Academic & Dev Platform")
+    st.markdown("---")
+
+    if st.session_state.logged_in:
+        st.write(f"Logged in as: **{st.session_state.username}**")
+        nav_choice = st.radio(
+            "Navigate",
+            ["Home", "Blueprint Generator", "Settings"],
+            index=["Home", "Blueprint Generator", "Settings"].index(st.session_state.current_page)
+        )
+        st.session_state.current_page = nav_choice
+        st.markdown("---")
+        if st.button("Logout"):
+            st.session_state.logged_in = False
+            st.session_state.username = "Guest User"
+            st.session_state.current_page = "Home"
+            st.rerun()
     else:
-        with st.spinner("Compiling full project architecture & implementation roadmap..."):
-            time.sleep(1.0)
-            blueprints = generate_master_blueprints(subject, skill_level, interests, num_ideas)
+        st.write("Status: **Not Logged In**")
+        nav_choice = st.radio(
+            "Navigate",
+            ["Home", "Login / Register"],
+            index=["Home", "Login / Register"].index(st.session_state.current_page) if st.session_state.current_page in ["Home", "Login / Register"] else 0
+        )
+        st.session_state.current_page = nav_choice
 
-            st.success("Comprehensive Project Blueprints Ready!")
+# -----------------------------------------------------------------------------
+# PAGE 1: Login / Register Page
+# -----------------------------------------------------------------------------
+if not st.session_state.logged_in and st.session_state.current_page == "Login / Register":
+    st.markdown("<div class='glowing-title'>Student Portal Access</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-title'>Sign in to save generated projects and access developer roadmaps.</div>", unsafe_allow_html=True)
 
-            for idx, proj in enumerate(blueprints, 1):
-                with st.expander(f"Blueprint #{idx}: {proj['title']}", expanded=True):
-                    st.markdown(f"#### {proj['title']}")
-                    st.caption(f"**Complexity:** `{proj['complexity']}` | **Category:** `{subject.title()}`")
-                    st.info(proj['tagline'])
+    col1, col2 = st.columns([1.5, 1])
 
-                    st.markdown("---")
+    with col1:
+        with st.form("auth_form"):
+            st.markdown("### User Login")
+            uname = st.text_input("Username or Email", placeholder="student@college.edu")
+            pwd = st.text_input("Password", type="password", placeholder="••••••••")
+            auth_submit = st.form_submit_button("Sign In to Dashboard", type="primary")
 
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.markdown("##### Key Features")
-                        for feat in proj["features"]:
-                            st.write(f"- {feat}")
+            if auth_submit:
+                if uname.strip():
+                    st.session_state.logged_in = True
+                    st.session_state.username = uname.strip().split("@")[0].title()
+                    st.session_state.current_page = "Blueprint Generator"
+                    st.success(f"Welcome back, {st.session_state.username}!")
+                    time.sleep(0.5)
+                    st.rerun()
+                else:
+                    st.warning("Please enter a valid username.")
 
-                    with col2:
-                        st.markdown("##### Recommended Tech Stack")
-                        tech_badges = " ".join([f"`{t}`" for t in proj["tech_stack"]])
-                        st.write(tech_badges)
+    with col2:
+        st.markdown("<div class='card-box'>", unsafe_allow_html=True)
+        st.markdown("### Quick Demo Access")
+        st.write("Want to test without creating an account?")
+        if st.button("One-Click Guest Login"):
+            st.session_state.logged_in = True
+            st.session_state.username = "Demo Student"
+            st.session_state.current_page = "Blueprint Generator"
+            st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
-                    st.markdown("---")
+# -----------------------------------------------------------------------------
+# PAGE 2: Home Page (Landing Page)
+# -----------------------------------------------------------------------------
+elif st.session_state.current_page == "Home":
+    st.markdown("<div class='glowing-title'>EduSpark AI</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-title'>The Complete Academic & Industry Project Blueprint Hub</div>", unsafe_allow_html=True)
 
-                    # Folder Architecture & Starter Code
-                    st.markdown("##### 1. Production Folder Architecture")
-                    st.code(proj["folder_structure"], language="bash")
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.markdown("<div class='card-box'><h4>Production Blueprints</h4><p>Get complete system designs, folder hierarchies, and boilerplate code ready to run.</p></div>", unsafe_allow_html=True)
+    with c2:
+        st.markdown("<div class='card-box'><h4>Interview & Viva Ready</h4><p>Detailed architectural questions and resume-ready bullets tailored for your projects.</p></div>", unsafe_allow_html=True)
+    with c3:
+        st.markdown("<div class='card-box'><h4>Multi-Domain Engine</h4><p>Supports Python, Web Dev, AI/ML, Cloud, Cybersecurity, and more.</p></div>", unsafe_allow_html=True)
 
-                    st.markdown("##### 2. Core Boilerplate / Starter Code")
-                    st.code(proj["starter_code"], language="python")
+    st.markdown("---")
+    st.markdown("### Ready to engineer your next capstone project?")
+    if st.button("Launch Blueprint Generator", type="primary"):
+        if st.session_state.logged_in:
+            st.session_state.current_page = "Blueprint Generator"
+        else:
+            st.session_state.current_page = "Login / Register"
+        st.rerun()
 
-                    st.markdown("---")
+# -----------------------------------------------------------------------------
+# PAGE 3: Settings Page
+# -----------------------------------------------------------------------------
+elif st.session_state.logged_in and st.session_state.current_page == "Settings":
+    st.markdown("<div class='glowing-title'>Account Settings</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-title'>Manage your developer profile and default blueprint preferences.</div>", unsafe_allow_html=True)
 
-                    # Database & API Design
-                    st.markdown("##### 3. Database Schema & API Endpoints")
-                    for spec in proj["db_api_design"]:
-                        st.write(f"- {spec}")
+    with st.form("settings_form"):
+        st.markdown("### Profile Preferences")
+        new_name = st.text_input("Display Name", value=st.session_state.username)
+        default_domain = st.selectbox("Primary Domain", ["Python", "Web Development", "Artificial Intelligence", "Cybersecurity", "Java / Spring"], index=0)
+        default_level = st.selectbox("Default Experience Level", ["Beginner", "Intermediate", "Advanced"], index=1)
+        save_btn = st.form_submit_button("Save Preferences", type="primary")
 
-                    st.markdown("---")
+        if save_btn:
+            st.session_state.username = new_name
+            st.session_state.user_domain = default_domain
+            st.success("Settings saved successfully!")
 
-                    # Milestone Roadmap
-                    st.markdown("##### 4. Step-by-Step Execution Roadmap")
-                    for step in proj["roadmap"]:
-                        st.write(f"**{step.split(':')[0]}:** {step.split(':')[1]}")
+# -----------------------------------------------------------------------------
+# PAGE 4: Blueprint Generator (Main Hub)
+# -----------------------------------------------------------------------------
+elif st.session_state.current_page == "Blueprint Generator":
+    st.markdown("<div class='glowing-title'>EduSpark Blueprint Engine</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-title'>Enter your target specialization to generate full project architectures.</div>", unsafe_allow_html=True)
 
-                    st.markdown("---")
+    with st.form("project_input_form"):
+        st.markdown("<h3 style='color: #ffffff !important; margin-bottom: 20px;'>Student Profile Settings</h3>", unsafe_allow_html=True)
 
-                    # Interview & Resume Prep
-                    st.markdown("##### 5. Viva / Interview Questions & Resume Points")
-                    for item in proj["interview_prep"]:
-                        st.write(f"• {item}")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            subject = st.text_input("Subject / Domain", value=st.session_state.user_domain, placeholder="e.g. Python, AI, Web Dev")
+        with col2:
+            skill_level = st.selectbox("Current Skill Level", ["Beginner", "Intermediate", "Advanced"])
+        with col3:
+            interests = st.text_input("Interests / Specialization", placeholder="e.g. Healthcare, Finance, Gaming, Cloud")
+
+        num_ideas = st.slider("Number of Blueprints to Generate", min_value=1, max_value=2, value=2)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        submit_btn = st.form_submit_button("Generate Industry Blueprints", type="primary")
+
+    if submit_btn:
+        if not subject:
+            st.warning("Please fill the Subject / Domain field.")
+        else:
+            with st.spinner("Compiling full project architecture & implementation roadmap..."):
+                time.sleep(1.0)
+                blueprints = generate_master_blueprints(subject, skill_level, interests, num_ideas)
+
+                st.success("Comprehensive Project Blueprints Ready!")
+
+                for idx, proj in enumerate(blueprints, 1):
+                    with st.expander(f"Blueprint #{idx}: {proj['title']}", expanded=True):
+                        st.markdown(f"#### {proj['title']}")
+                        st.caption(f"**Complexity:** `{proj['complexity']}` | **Category:** `{subject.title()}`")
+                        st.info(proj['tagline'])
+
+                        st.markdown("---")
+
+                        c1, c2 = st.columns(2)
+                        with c1:
+                            st.markdown("##### Key Features")
+                            for feat in proj["features"]:
+                                st.write(f"- {feat}")
+                        with c2:
+                            st.markdown("##### Recommended Tech Stack")
+                            tech_badges = " ".join([f"`{t}`" for t in proj["tech_stack"]])
+                            st.write(tech_badges)
+
+                        st.markdown("---")
+                        st.markdown("##### 1. Production Folder Architecture")
+                        st.code(proj["folder_structure"], language="bash")
+
+                        st.markdown("##### 2. Core Boilerplate / Starter Code")
+                        st.code(proj["starter_code"], language="python")
+
+                        st.markdown("---")
+                        st.markdown("##### 3. Database Schema & API Endpoints")
+                        for spec in proj["db_api_design"]:
+                            st.write(f"- {spec}")
+
+                        st.markdown("---")
+                        st.markdown("##### 4. Step-by-Step Execution Roadmap")
+                        for step in proj["roadmap"]:
+                            st.write(f"**{step.split(':')[0]}:** {step.split(':')[1]}")
+
+                        st.markdown("---")
+                        st.markdown("##### 5. Viva / Interview Questions & Resume Points")
+                        for item in proj["interview_prep"]:
+                            st.write(f"• {item}")
