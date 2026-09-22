@@ -13,7 +13,7 @@ st.set_page_config(
 if "users_db" not in st.session_state:
     st.session_state.users_db = {
         "admin": {
-            "email": "admin@eduspark.com",
+            "email": "admin@gmail.com",
             "password": "admin123",
             "name": "Admin"
         }
@@ -31,7 +31,7 @@ if "user_domain" not in st.session_state:
     st.session_state.user_domain = "Python"
 
 # -----------------------------------------------------------------------------
-# Styling (Fixed High-Contrast & Google Dialog Box)
+# High-Contrast CSS Styling
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -63,7 +63,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* Fixed Dark Input Box */
+    /* Fixed Dark Input Box & Text */
     div[data-testid="stTextInput"] input,
     div[data-baseweb="input"] input,
     input {
@@ -97,20 +97,6 @@ st.markdown("""
         border: 1px solid #a855f7 !important;
         border-radius: 8px !important;
         width: 100% !important;
-    }
-
-    /* Google Button Styling */
-    .google-btn-wrapper button {
-        background: #ffffff !important;
-        color: #1f2937 !important;
-        border: 1px solid #e5e7eb !important;
-        font-weight: 700 !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-    }
-
-    .google-btn-wrapper button:hover {
-        background: #f3f4f6 !important;
-        color: #111827 !important;
     }
 
     div[data-testid="stExpander"] {
@@ -172,56 +158,14 @@ with nav_c4:
 st.markdown("<hr style='margin-top: 5px; margin-bottom: 25px; border-color: #30363d;'>", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# Helper: Dual Auth Validator (Username OR Email)
+# Helper: Verify Login via Username OR Email
 # -----------------------------------------------------------------------------
-def verify_user_login(login_input, password):
-    clean_input = login_input.strip().lower()
+def verify_user_login(login_id, password):
+    clean_id = login_id.strip().lower()
     for user_key, data in st.session_state.users_db.items():
-        if (clean_input == user_key.lower() or clean_input == data["email"].lower()) and password == data["password"]:
+        if (clean_id == user_key.lower() or clean_id == data["email"].lower()) and password == data["password"]:
             return data["name"], data["email"]
     return None, None
-
-# -----------------------------------------------------------------------------
-# Interactive Google Account Picker Modal
-# -----------------------------------------------------------------------------
-@st.dialog("Sign in with Google")
-def google_account_dialog():
-    st.markdown("<div style='text-align: center; margin-bottom: 15px;'><h3 style='margin:0; color:#38bdf8;'>Choose a Google Account</h3><p style='color:#94a3b8; font-size:0.9rem;'>to continue to EduSpark AI</p></div>", unsafe_allow_html=True)
-    
-    col_acc1, col_acc2 = st.columns([1, 4])
-    with col_acc1:
-        st.markdown("<div style='font-size: 2rem; text-align: center;'>👤</div>", unsafe_allow_html=True)
-    with col_acc2:
-        st.markdown("**Personal Account**")
-        st.caption("user.personal@gmail.com")
-        if st.button("Continue as Personal", key="btn_g_quick1"):
-            st.session_state.logged_in = True
-            st.session_state.username = "Personal Google User"
-            st.session_state.user_email = "user.personal@gmail.com"
-            st.session_state.current_page = "Generator"
-            st.rerun()
-
-    st.markdown("<hr style='margin: 10px 0; border-color: #30363d;'>", unsafe_allow_html=True)
-
-    st.markdown("#### Or Enter Your Google Account Email")
-    with st.form("custom_google_form"):
-        g_name = st.text_input("Your Full Name", placeholder="e.g. Lucky Ujjawal")
-        g_email = st.text_input("Google Email Address", placeholder="yourname@gmail.com")
-        g_submit = st.form_submit_button("Verify & Sign in with Google", type="primary")
-
-        if g_submit:
-            if not g_name or not g_email:
-                st.warning("Please fill in both Name and Google Email.")
-            elif "@gmail.com" not in g_email and "@" not in g_email:
-                st.warning("Please enter a valid Google (@gmail.com) address.")
-            else:
-                st.session_state.logged_in = True
-                st.session_state.username = g_name.title()
-                st.session_state.user_email = g_email.lower().strip()
-                st.session_state.current_page = "Generator"
-                st.success(f"Authenticated as {g_email}! Redirecting...")
-                time.sleep(0.5)
-                st.rerun()
 
 # -----------------------------------------------------------------------------
 # Blueprint Engine
@@ -372,36 +316,28 @@ if st.session_state.current_page == "Home":
         st.rerun()
 
 # =============================================================================
-# VIEW 2: LOGIN / REGISTER PAGE (WITH INTERACTIVE GOOGLE SELECTOR)
+# VIEW 2: LOGIN / REGISTER PAGE (DUAL USERNAME OR GMAIL)
 # =============================================================================
 elif st.session_state.current_page == "Auth" and not st.session_state.logged_in:
     st.markdown("<div class='glowing-title'>Portal Authentication</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sub-title'>Sign in with your Google Account, Registered Email, or Username.</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-title'>Sign in or create your account using your Username or Gmail address.</div>", unsafe_allow_html=True)
 
     auth_col1, auth_col2 = st.columns([1.2, 1])
 
     with auth_col1:
-        # Trigger for Google Account Picker Modal
-        st.markdown("<div class='google-btn-wrapper' style='margin-bottom: 12px;'>", unsafe_allow_html=True)
-        if st.button("🔴 Continue with Google Account"):
-            google_account_dialog()
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        st.markdown("<div style='text-align: center; color: #94a3b8; margin-bottom: 15px;'>— OR ACCESS VIA CREDENTIALS —</div>", unsafe_allow_html=True)
-
         tab_login, tab_register = st.tabs(["🔐 Sign In", "📝 Create New Account"])
 
-        # --- TAB: LOGIN ---
+        # --- LOGIN TAB ---
         with tab_login:
             with st.form("login_form"):
-                st.markdown("#### Login with Username or Email")
-                login_id = st.text_input("Username or Email Address", placeholder="e.g. admin or student@gmail.com").strip()
+                st.markdown("#### Login with Username or Gmail")
+                login_id = st.text_input("Username or Gmail / Email Address", placeholder="e.g. lucky or lucky@gmail.com").strip()
                 l_pass = st.text_input("Password", type="password", placeholder="Enter password").strip()
                 login_btn = st.form_submit_button("Sign In to Portal", type="primary")
 
                 if login_btn:
                     if not login_id or not l_pass:
-                        st.warning("Please enter both Username/Email and Password.")
+                        st.warning("Please fill in both Username/Gmail and Password.")
                     else:
                         verified_name, verified_email = verify_user_login(login_id, l_pass)
                         if verified_name:
@@ -413,15 +349,15 @@ elif st.session_state.current_page == "Auth" and not st.session_state.logged_in:
                             time.sleep(0.5)
                             st.rerun()
                         else:
-                            st.error("Invalid credentials. Please check your username/email or password.")
+                            st.error("Invalid credentials. Please check your username/gmail or password.")
 
-        # --- TAB: REGISTER ---
+        # --- REGISTER TAB ---
         with tab_register:
             with st.form("register_form"):
                 st.markdown("#### Create a New Account")
                 reg_name = st.text_input("Full Name", placeholder="e.g. Lucky Ujjawal").strip()
                 reg_user = st.text_input("Choose Username", placeholder="e.g. lucky99").strip().lower()
-                reg_email = st.text_input("Email Address", placeholder="e.g. lucky@example.com").strip().lower()
+                reg_email = st.text_input("Gmail / Email Address", placeholder="e.g. lucky@gmail.com").strip().lower()
                 r_pass = st.text_input("Create Password", type="password", placeholder="Min 4 characters").strip()
                 r_pass2 = st.text_input("Confirm Password", type="password", placeholder="Re-enter password").strip()
                 reg_btn = st.form_submit_button("Register & Activate Workspace", type="primary")
@@ -430,7 +366,7 @@ elif st.session_state.current_page == "Auth" and not st.session_state.logged_in:
                     if not reg_name or not reg_user or not reg_email or not r_pass:
                         st.warning("All fields are required.")
                     elif "@" not in reg_email or "." not in reg_email:
-                        st.warning("Please enter a valid email address.")
+                        st.warning("Please enter a valid Gmail / Email address.")
                     elif len(r_pass) < 4:
                         st.warning("Password must be at least 4 characters long.")
                     elif r_pass != r_pass2:
@@ -438,7 +374,7 @@ elif st.session_state.current_page == "Auth" and not st.session_state.logged_in:
                     elif reg_user in st.session_state.users_db:
                         st.error("Username already registered! Choose another.")
                     elif any(u["email"] == reg_email for u in st.session_state.users_db.values()):
-                        st.error("This Email is already registered. Please login instead.")
+                        st.error("This Gmail / Email is already registered. Please login instead.")
                     else:
                         st.session_state.users_db[reg_user] = {
                             "email": reg_email,
@@ -456,11 +392,11 @@ elif st.session_state.current_page == "Auth" and not st.session_state.logged_in:
     with auth_col2:
         st.markdown("<div class='card-box'>", unsafe_allow_html=True)
         st.markdown("### Developer Workspace Perks")
-        st.write("• **Google Account Integration**: Sign in with any active Gmail account.")
-        st.write("• **Flexible Credentials**: Dual authentication via Username or Email.")
-        st.write("• **Production Architecture**: Complete directory designs.")
+        st.write("• **Dual Authentication**: Sign in using your registered Gmail or Username.")
+        st.write("• **Production Architecture**: Complete directory designs & trees.")
         st.write("• **Ready Starter Code**: Working boilerplate files.")
         st.write("• **Database & API Specs**: Relational schemas & REST endpoints.")
+        st.write("• **Interview & Viva Prep**: Model viva questions & resume impact metrics.")
         st.markdown("<hr style='border-color: #30363d;'>", unsafe_allow_html=True)
         st.write("🔒 Verified portal. Authentication required for entry.")
         st.markdown("</div>", unsafe_allow_html=True)
@@ -471,7 +407,7 @@ elif st.session_state.current_page == "Auth" and not st.session_state.logged_in:
 elif st.session_state.current_page == "Generator" and st.session_state.logged_in:
     st.markdown(f"<div class='glowing-title'>Workspace | Hi, {st.session_state.username}</div>", unsafe_allow_html=True)
     if st.session_state.user_email:
-        st.caption(f"Authenticated Account: `{st.session_state.user_email}`")
+        st.caption(f"Connected Account: `{st.session_state.user_email}`")
     st.markdown("<div class='sub-title'>Generate complete production architectures tailored to your requirements.</div>", unsafe_allow_html=True)
 
     with st.form("project_input_form"):
