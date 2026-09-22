@@ -296,7 +296,7 @@ if st.session_state.page == "Login / Register":
         with tab_login:
             with st.form("dedicated_login_form"):
                 st.markdown("#### Developer Portal Sign In")
-                login_id = st.text_input("Username or Gmail Address", placeholder="e.g. ujjawal or ujjawal@gmail.com").strip()
+                login_id = st.text_input("Username or Gmail Address", placeholder="e.g. alex or alex@gmail.com").strip()
                 l_pass = st.text_input("Password", type="password", placeholder="Enter your password").strip()
                 login_btn = st.form_submit_button("Sign In to Platform", type="primary")
 
@@ -319,9 +319,9 @@ if st.session_state.page == "Login / Register":
         with tab_register:
             with st.form("dedicated_reg_form"):
                 st.markdown("#### New User Registration")
-                reg_name = st.text_input("Full Name", placeholder="e.g. Ujjawal Jha").strip()
-                reg_user = st.text_input("Choose Username", placeholder="e.g. ujjawal99").strip().lower()
-                reg_email = st.text_input("Gmail Address", placeholder="e.g. ujjawal@gmail.com").strip().lower()
+                reg_name = st.text_input("Full Name", placeholder="e.g. John Doe").strip()
+                reg_user = st.text_input("Choose Username", placeholder="e.g. john99").strip().lower()
+                reg_email = st.text_input("Gmail Address", placeholder="e.g. john@gmail.com").strip().lower()
                 r_pass = st.text_input("Create Password", type="password", placeholder="Minimum 4 characters").strip()
                 r_pass2 = st.text_input("Confirm Password", type="password", placeholder="Re-enter password").strip()
                 reg_btn = st.form_submit_button("Register & Activate Workspace", type="primary")
@@ -458,7 +458,7 @@ elif st.session_state.page == "Blueprint Generator":
                         st.markdown("---")
                         st.markdown("##### 5. Viva / Interview Questions & Resume Points")
                         for item in proj["interview_prep"]:
-                            st.write(f"- {item}")
+                            st.write(f"• {item}")
 
 # =============================================================================
 # SCENARIO D: SETTINGS PAGE
