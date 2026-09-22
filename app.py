@@ -4,26 +4,32 @@ import time
 st.set_page_config(
     page_title="EduSpark | AI Project Blueprint Hub",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # -----------------------------------------------------------------------------
-# Session State Setup
+# User Storage & Session State
 # -----------------------------------------------------------------------------
+if "users_db" not in st.session_state:
+    st.session_state.users_db = {
+        "admin": "admin123"
+    }
+
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
-    st.session_state.username = "Guest User"
+    st.session_state.username = ""
 if "current_page" not in st.session_state:
-    st.session_state.current_page = "Home"
+    st.session_state.current_page = "Generator"
 if "user_domain" not in st.session_state:
     st.session_state.user_domain = "Python"
 
 # -----------------------------------------------------------------------------
-# Styling
+# CSS Styling & Keyframe Animations
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
+    /* Main Background */
     .stApp, [data-testid="stAppViewContainer"] {
         background-color: #0d1117 !important;
         color: #ffffff !important;
@@ -33,6 +39,7 @@ st.markdown("""
         color: #ffffff !important;
     }
 
+    /* Glowing Gradient Title */
     .glowing-title {
         font-size: 2.8rem;
         font-weight: 800;
@@ -48,20 +55,79 @@ st.markdown("""
         margin-bottom: 25px;
     }
 
+    /* Form Container with Neon Border Pulse */
     div[data-testid="stForm"], .card-box {
         background-color: #161b22 !important;
         border: 2px solid #30363d !important;
-        border-radius: 12px;
+        border-radius: 14px;
         padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Futuristic Animated Loader Box */
+    .auth-loader-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        background: rgba(22, 27, 34, 0.95);
+        border: 2px solid #818cf8;
+        border-radius: 16px;
+        box-shadow: 0 0 30px rgba(129, 140, 248, 0.4);
+        margin: 20px auto;
+        max-width: 480px;
+        animation: fadeIn 0.4s ease-in-out;
+    }
+
+    .glowing-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid #21262d;
+        border-top: 4px solid #38bdf8;
+        border-right: 4px solid #a855f7;
+        border-radius: 50%;
+        animation: spinRing 0.9s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
         margin-bottom: 20px;
     }
 
+    .auth-pulse-text {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #38bdf8 !important;
+        letter-spacing: 0.5px;
+        animation: textPulse 1.2s ease-in-out infinite alternate;
+    }
+
+    .auth-sub-pulse {
+        font-size: 0.9rem;
+        color: #94a3b8 !important;
+        margin-top: 8px;
+    }
+
+    @keyframes spinRing {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @keyframes textPulse {
+        0% { opacity: 0.6; transform: scale(0.98); }
+        100% { opacity: 1; transform: scale(1.02); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Inputs & Selectbox */
     .stTextInput input, 
     div[data-baseweb="select"] > div {
         background-color: #21262d !important;
         color: #ffffff !important;
         border: 1px solid #484f58 !important;
-        border-radius: 6px !important;
+        border-radius: 8px !important;
     }
 
     div[data-baseweb="select"] * {
@@ -96,6 +162,12 @@ st.markdown("""
         border: 1px solid #a855f7 !important;
         border-radius: 8px !important;
         width: 100% !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(168, 85, 247, 0.6) !important;
     }
 
     div[data-testid="stExpander"] {
@@ -119,46 +191,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
-# -----------------------------------------------------------------------------
-# TOP NAVIGATION BAR (Visible Everywhere on PC & Mobile)
-# -----------------------------------------------------------------------------
-nav_col1, nav_col2, nav_col3, nav_col4, nav_col5 = st.columns([1.5, 1, 1, 1, 1])
-
-with nav_col1:
-    st.markdown("<h3 style='margin:0; padding:0; background: linear-gradient(90deg,#38bdf8,#818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>EduSpark</h3>", unsafe_allow_html=True)
-
-with nav_col2:
-    if st.button("Home"):
-        st.session_state.current_page = "Home"
-        st.rerun()
-
-with nav_col3:
-    if st.button("Generator"):
-        st.session_state.current_page = "Blueprint Generator"
-        st.rerun()
-
-with nav_col4:
-    if st.session_state.logged_in:
-        if st.button("Settings"):
-            st.session_state.current_page = "Settings"
-            st.rerun()
-    else:
-        if st.button("Login"):
-            st.session_state.current_page = "Login / Register"
-            st.rerun()
-
-with nav_col5:
-    if st.session_state.logged_in:
-        if st.button("Logout"):
-            st.session_state.logged_in = False
-            st.session_state.username = "Guest User"
-            st.session_state.current_page = "Home"
-            st.rerun()
-    else:
-        st.caption(f"Status: Guest")
-
-st.markdown("<hr style='margin-top: 5px; margin-bottom: 25px; border-color: #30363d;'>", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
 # Blueprint Engine
@@ -285,141 +317,214 @@ print(rec.match_entities([{{"name": "Node Alpha", "score": 0.91}}]))""",
     ]
     return blueprints[:count]
 
-# -----------------------------------------------------------------------------
-# PAGE 1: Home
-# -----------------------------------------------------------------------------
-if st.session_state.current_page == "Home":
+# =============================================================================
+# SCENARIO 1: NOT LOGGED IN -> ANIMATED GATEWAY
+# =============================================================================
+if not st.session_state.logged_in:
     st.markdown("<div class='glowing-title'>EduSpark AI</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sub-title'>The Complete Academic & Industry Project Blueprint Hub</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-title'>Welcome to Next-Gen Industry Project Blueprint Hub. Authentication is required to enter.</div>", unsafe_allow_html=True)
 
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.markdown("<div class='card-box'><h4>Production Blueprints</h4><p>Complete system designs, folder hierarchies, and runnable starter code.</p></div>", unsafe_allow_html=True)
-    with c2:
-        st.markdown("<div class='card-box'><h4>Interview & Viva Ready</h4><p>Architectural viva questions and resume-ready bullets.</p></div>", unsafe_allow_html=True)
-    with c3:
-        st.markdown("<div class='card-box'><h4>Multi-Domain Engine</h4><p>Supports Python, Web Dev, AI/ML, Cloud, Cybersecurity, and more.</p></div>", unsafe_allow_html=True)
+    auth_col1, auth_col2 = st.columns([1.2, 1])
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("🚀 Launch Blueprint Generator", type="primary"):
-        st.session_state.current_page = "Blueprint Generator"
-        st.rerun()
+    with auth_col1:
+        tab_login, tab_register = st.tabs(["🔐 Sign In", "📝 Create New Account"])
 
-# -----------------------------------------------------------------------------
-# PAGE 2: Blueprint Generator
-# -----------------------------------------------------------------------------
-elif st.session_state.current_page == "Blueprint Generator":
-    st.markdown("<div class='glowing-title'>Blueprint Engine</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sub-title'>Generate complete production architectures tailored to your requirements.</div>", unsafe_allow_html=True)
+        # --- LOGIN TAB ---
+        with tab_login:
+            with st.form("login_form"):
+                st.markdown("#### Login to Developer Portal")
+                l_user = st.text_input("Username", placeholder="e.g. admin").strip().lower()
+                l_pass = st.text_input("Password", type="password", placeholder="••••••••").strip()
+                login_btn = st.form_submit_button("Sign In", type="primary")
 
-    with st.form("project_input_form"):
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            subject = st.text_input("Subject / Domain", value=st.session_state.user_domain, placeholder="e.g. Python, AI, Web Dev")
-        with col2:
-            skill_level = st.selectbox("Current Skill Level", ["Beginner", "Intermediate", "Advanced"])
-        with col3:
-            interests = st.text_input("Interests / Specialization", placeholder="e.g. Healthcare, Finance, Gaming, Cloud")
+                if login_btn:
+                    if not l_user or not l_pass:
+                        st.warning("Please fill in both Username and Password.")
+                    elif l_user in st.session_state.users_db and st.session_state.users_db[l_user] == l_pass:
+                        anim_placeholder = st.empty()
+                        
+                        # --- Stage 1: Authenticating Animation ---
+                        anim_placeholder.markdown("""
+                        <div class='auth-loader-container'>
+                            <div class='glowing-spinner'></div>
+                            <div class='auth-pulse-text'>Verifying Security Credentials...</div>
+                            <div class='auth-sub-pulse'>Establishing encrypted session token</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        time.sleep(1.0)
+                        
+                        # --- Stage 2: Success Animation & Confetti ---
+                        anim_placeholder.markdown("""
+                        <div class='auth-loader-container' style='border-color: #10b981; box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);'>
+                            <div style='font-size: 2.8rem; margin-bottom: 10px;'>🔓</div>
+                            <div class='auth-pulse-text' style='color: #10b981 !important;'>Access Granted! Welcome back.</div>
+                            <div class='auth-sub-pulse'>Launching EduSpark workspace...</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        st.balloons()
+                        time.sleep(1.0)
 
-        num_ideas = st.slider("Number of Blueprints to Generate", min_value=1, max_value=2, value=2)
-        submit_btn = st.form_submit_button("Generate Industry Blueprints", type="primary")
+                        st.session_state.logged_in = True
+                        st.session_state.username = l_user.title()
+                        st.session_state.current_page = "Generator"
+                        st.rerun()
+                    else:
+                        st.error("Invalid Username or Password. Please register if you are new.")
 
-    if submit_btn:
-        if not subject:
-            st.warning("Please fill the Subject / Domain field.")
-        else:
-            with st.spinner("Compiling full project architecture & implementation roadmap..."):
-                time.sleep(0.8)
-                blueprints = generate_master_blueprints(subject, skill_level, interests, num_ideas)
+        # --- REGISTER TAB ---
+        with tab_register:
+            with st.form("register_form"):
+                st.markdown("#### Create a New Account")
+                r_user = st.text_input("Choose Username", placeholder="e.g. lucky").strip().lower()
+                r_pass = st.text_input("Create Password", type="password", placeholder="Min 4 characters").strip()
+                r_pass2 = st.text_input("Confirm Password", type="password", placeholder="Re-enter password").strip()
+                reg_btn = st.form_submit_button("Register & Activate Workspace", type="primary")
 
-                st.success("Comprehensive Project Blueprints Ready!")
+                if reg_btn:
+                    if not r_user or not r_pass:
+                        st.warning("All fields are required.")
+                    elif len(r_pass) < 4:
+                        st.warning("Password must be at least 4 characters long.")
+                    elif r_pass != r_pass2:
+                        st.error("Passwords do not match!")
+                    elif r_user in st.session_state.users_db:
+                        st.error("Username already exists! Please choose another.")
+                    else:
+                        anim_placeholder = st.empty()
+                        anim_placeholder.markdown("""
+                        <div class='auth-loader-container'>
+                            <div class='glowing-spinner'></div>
+                            <div class='auth-pulse-text'>Creating Developer Account...</div>
+                            <div class='auth-sub-pulse'>Allocating workspace storage</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        time.sleep(1.2)
 
-                for idx, proj in enumerate(blueprints, 1):
-                    with st.expander(f"Blueprint #{idx}: {proj['title']}", expanded=True):
-                        st.markdown(f"#### {proj['title']}")
-                        st.caption(f"**Complexity:** `{proj['complexity']}` | **Category:** `{subject.title()}`")
-                        st.info(proj['tagline'])
+                        st.session_state.users_db[r_user] = r_pass
+                        st.session_state.logged_in = True
+                        st.session_state.username = r_user.title()
+                        st.session_state.current_page = "Generator"
+                        st.balloons()
+                        st.rerun()
 
-                        st.markdown("---")
-                        c1, c2 = st.columns(2)
-                        with c1:
-                            st.markdown("##### Key Features")
-                            for feat in proj["features"]:
-                                st.write(f"- {feat}")
-                        with c2:
-                            st.markdown("##### Recommended Tech Stack")
-                            tech_badges = " ".join([f"`{t}`" for t in proj["tech_stack"]])
-                            st.write(tech_badges)
-
-                        st.markdown("---")
-                        st.markdown("##### 1. Production Folder Architecture")
-                        st.code(proj["folder_structure"], language="bash")
-
-                        st.markdown("##### 2. Core Starter Code")
-                        st.code(proj["starter_code"], language="python")
-
-                        st.markdown("---")
-                        st.markdown("##### 3. Database Schema & API Endpoints")
-                        for spec in proj["db_api_design"]:
-                            st.write(f"- {spec}")
-
-                        st.markdown("---")
-                        st.markdown("##### 4. Execution Roadmap")
-                        for step in proj["roadmap"]:
-                            st.write(f"- {step}")
-
-                        st.markdown("---")
-                        st.markdown("##### 5. Viva / Interview Questions & Resume Points")
-                        for item in proj["interview_prep"]:
-                            st.write(f"• {item}")
-
-# -----------------------------------------------------------------------------
-# PAGE 3: Login / Register
-# -----------------------------------------------------------------------------
-elif st.session_state.current_page == "Login / Register":
-    st.markdown("<div class='glowing-title'>Student Portal Access</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sub-title'>Sign in to personalize your developer profile.</div>", unsafe_allow_html=True)
-
-    col1, col2 = st.columns([1.5, 1])
-    with col1:
-        with st.form("auth_form"):
-            uname = st.text_input("Username or Email", placeholder="student@college.edu")
-            pwd = st.text_input("Password", type="password", placeholder="••••••••")
-            auth_submit = st.form_submit_button("Sign In", type="primary")
-
-            if auth_submit:
-                if uname.strip():
-                    st.session_state.logged_in = True
-                    st.session_state.username = uname.strip().split("@")[0].title()
-                    st.session_state.current_page = "Blueprint Generator"
-                    st.rerun()
-                else:
-                    st.warning("Please enter a valid username.")
-
-    with col2:
+    with auth_col2:
         st.markdown("<div class='card-box'>", unsafe_allow_html=True)
-        st.markdown("### Quick Demo Access")
-        st.write("One-click instant login:")
-        if st.button("One-Click Guest Login"):
-            st.session_state.logged_in = True
-            st.session_state.username = "Demo Student"
-            st.session_state.current_page = "Blueprint Generator"
-            st.rerun()
+        st.markdown("### 🎓 Developer Workspace Perks")
+        st.write("• **Production System Architecture**: Directory designs & trees.")
+        st.write("• **Ready-to-Run Starter Code**: Production boilerplate files.")
+        st.write("• **Database & API Endpoints**: Relational schemas & REST specifications.")
+        st.write("• **Interview & Viva Preparation**: Questions & resume-ready impact metrics.")
+        st.markdown("---")
+        st.caption("🔒 Verified portal. Authentication required for entry.")
         st.markdown("</div>", unsafe_allow_html=True)
 
-# -----------------------------------------------------------------------------
-# PAGE 4: Settings
-# -----------------------------------------------------------------------------
-elif st.session_state.current_page == "Settings":
-    st.markdown("<div class='glowing-title'>Account Settings</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sub-title'>Manage your developer profile and preferences.</div>", unsafe_allow_html=True)
+# =============================================================================
+# SCENARIO 2: LOGGED IN -> FULL APP DASHBOARD
+# =============================================================================
+else:
+    # Top Bar with User Info & Logout
+    top_c1, top_c2, top_c3, top_c4 = st.columns([2, 1, 1, 1])
 
-    with st.form("settings_form"):
-        new_name = st.text_input("Display Name", value=st.session_state.username)
-        default_domain = st.selectbox("Primary Domain", ["Python", "Web Development", "Artificial Intelligence", "Cybersecurity", "Java / Spring"], index=0)
-        save_btn = st.form_submit_button("Save Preferences", type="primary")
+    with top_c1:
+        st.markdown(f"<h3 style='margin:0; padding:0; background: linear-gradient(90deg,#38bdf8,#818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>EduSpark | Hi, {st.session_state.username}</h3>", unsafe_allow_html=True)
 
-        if save_btn:
-            st.session_state.username = new_name
-            st.session_state.user_domain = default_domain
-            st.success("Settings saved successfully!")
+    with top_c2:
+        if st.button("🚀 Generator"):
+            st.session_state.current_page = "Generator"
+            st.rerun()
+
+    with top_c3:
+        if st.button("⚙️ Settings"):
+            st.session_state.current_page = "Settings"
+            st.rerun()
+
+    with top_c4:
+        if st.button("🚪 Logout"):
+            st.session_state.logged_in = False
+            st.session_state.username = ""
+            st.session_state.current_page = "Generator"
+            st.rerun()
+
+    st.markdown("<hr style='margin-top: 5px; margin-bottom: 25px; border-color: #30363d;'>", unsafe_allow_html=True)
+
+    # --- VIEW 1: GENERATOR ---
+    if st.session_state.current_page == "Generator":
+        st.markdown("<div class='glowing-title'>Blueprint Engine</div>", unsafe_allow_html=True)
+        st.markdown("<div class='sub-title'>Generate complete production architectures tailored to your requirements.</div>", unsafe_allow_html=True)
+
+        with st.form("project_input_form"):
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                subject = st.text_input("Subject / Domain", value=st.session_state.user_domain, placeholder="e.g. Python, AI, Web Dev")
+            with col2:
+                skill_level = st.selectbox("Current Skill Level", ["Beginner", "Intermediate", "Advanced"])
+            with col3:
+                interests = st.text_input("Interests / Specialization", placeholder="e.g. Healthcare, Finance, Gaming, Cloud")
+
+            num_ideas = st.slider("Number of Blueprints to Generate", min_value=1, max_value=2, value=2)
+            submit_btn = st.form_submit_button("Generate Industry Blueprints", type="primary")
+
+        if submit_btn:
+            if not subject:
+                st.warning("Please fill the Subject / Domain field.")
+            else:
+                with st.spinner("Compiling full project architecture & implementation roadmap..."):
+                    time.sleep(0.8)
+                    blueprints = generate_master_blueprints(subject, skill_level, interests, num_ideas)
+
+                    st.success("Comprehensive Project Blueprints Ready!")
+
+                    for idx, proj in enumerate(blueprints, 1):
+                        with st.expander(f"Blueprint #{idx}: {proj['title']}", expanded=True):
+                            st.markdown(f"#### {proj['title']}")
+                            st.caption(f"**Complexity:** `{proj['complexity']}` | **Category:** `{subject.title()}`")
+                            st.info(proj['tagline'])
+
+                            st.markdown("---")
+                            c1, c2 = st.columns(2)
+                            with c1:
+                                st.markdown("##### Key Features")
+                                for feat in proj["features"]:
+                                    st.write(f"- {feat}")
+                            with c2:
+                                st.markdown("##### Recommended Tech Stack")
+                                tech_badges = " ".join([f"`{t}`" for t in proj["tech_stack"]])
+                                tech_badges = tech_badges if tech_badges else "`Core`"
+                                st.write(tech_badges)
+
+                            st.markdown("---")
+                            st.markdown("##### 1. Production Folder Architecture")
+                            st.code(proj["folder_structure"], language="bash")
+
+                            st.markdown("##### 2. Core Starter Code")
+                            st.code(proj["starter_code"], language="python")
+
+                            st.markdown("---")
+                            st.markdown("##### 3. Database Schema & API Endpoints")
+                            for spec in proj["db_api_design"]:
+                                st.write(f"- {spec}")
+
+                            st.markdown("---")
+                            st.markdown("##### 4. Execution Roadmap")
+                            for step in proj["roadmap"]:
+                                st.write(f"- {step}")
+
+                            st.markdown("---")
+                            st.markdown("##### 5. Viva / Interview Questions & Resume Points")
+                            for item in proj["interview_prep"]:
+                                st.write(f"• {item}")
+
+    # --- VIEW 2: SETTINGS ---
+    elif st.session_state.current_page == "Settings":
+        st.markdown("<div class='glowing-title'>Account Settings</div>", unsafe_allow_html=True)
+        st.markdown("<div class='sub-title'>Manage your developer profile and preferences.</div>", unsafe_allow_html=True)
+
+        with st.form("settings_form"):
+            new_name = st.text_input("Display Name", value=st.session_state.username)
+            default_domain = st.selectbox("Primary Domain", ["Python", "Web Development", "Artificial Intelligence", "Cybersecurity", "Java / Spring"], index=0)
+            save_btn = st.form_submit_button("Save Preferences", type="primary")
+
+            if save_btn:
+                st.session_state.username = new_name
+                st.session_state.user_domain = default_domain
+                st.success("Settings saved successfully!")
