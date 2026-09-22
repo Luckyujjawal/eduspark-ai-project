@@ -25,25 +25,13 @@ if "user_domain" not in st.session_state:
     st.session_state.user_domain = "Python"
 
 # -----------------------------------------------------------------------------
-# High-Contrast CSS (Eye Icon & Box Fix)
+# Permanent Input & Eye Icon Fix CSS
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
-    /* Main Background & Base Text */
     .stApp, [data-testid="stAppViewContainer"] {
         background-color: #0d1117 !important;
         color: #f0f6fc !important;
-    }
-
-    h1, h2, h3, h4, h5, h6, p, span, label, strong, b, em, li, div {
-        color: #ffffff !important;
-        opacity: 1 !important;
-    }
-
-    .sub-title {
-        color: #94a3b8 !important;
-        font-size: 1.15rem;
-        margin-bottom: 25px;
     }
 
     .glowing-title {
@@ -55,91 +43,54 @@ st.markdown("""
         margin-bottom: 5px;
     }
 
+    .sub-title {
+        color: #94a3b8;
+        font-size: 1.15rem;
+        margin-bottom: 25px;
+    }
+
     div[data-testid="stForm"], .card-box {
-        background-color: #161b22 !important;
-        border: 2px solid #30363d !important;
+        background-color: #161b22;
+        border: 2px solid #30363d;
         border-radius: 14px;
         padding: 25px;
         margin-bottom: 20px;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 
-    .card-box p, .card-box span, .card-box h3, .card-box h4, .card-box div {
-        color: #f0f6fc !important;
-        line-height: 1.6;
-    }
-
-    /* Entire Input Box Container Fix */
-    div[data-baseweb="input"] {
-        background-color: #21262d !important;
-        border: 1px solid #484f58 !important;
-        border-radius: 8px !important;
-    }
-
-    .stTextInput input {
-        background-color: transparent !important;
-        color: #ffffff !important;
-        border: none !important;
-        font-size: 1rem !important;
-    }
-
-    .stTextInput input::placeholder {
-        color: #8b949e !important;
-    }
-
-    /* Eye Icon & Container Button Strict Dark Fix */
-    div[data-baseweb="input"] > div,
-    div[data-testid="stTextInput"] button,
-    div[data-baseweb="input"] button {
-        background-color: #21262d !important;
-        border: none !important;
-        color: #38bdf8 !important;
-        box-shadow: none !important;
-    }
-
-    /* Eye SVG Icon Neon Styling */
-    div[data-testid="stTextInput"] svg,
-    div[data-baseweb="input"] svg {
-        fill: #38bdf8 !important;
-        color: #38bdf8 !important;
-        width: 22px !important;
-        height: 22px !important;
-        opacity: 1 !important;
-    }
-
-    div[data-baseweb="select"] > div {
-        background-color: #21262d !important;
-        border: 1px solid #484f58 !important;
-        border-radius: 8px !important;
-    }
-
-    div[data-baseweb="select"] * {
-        color: #ffffff !important;
-    }
-
-    /* Dropdown Options */
-    div[data-baseweb="popover"],
-    div[data-baseweb="popover"] > div,
-    ul[role="listbox"] {
+    /* Input Box Background Dark & Clean */
+    div[data-baseweb="input"],
+    div[data-baseweb="base-input"] {
         background-color: #1e293b !important;
         border: 1px solid #475569 !important;
         border-radius: 8px !important;
     }
 
-    li[role="option"], div[role="option"] {
-        background-color: #1e293b !important;
+    /* Jo text user type kare wo 100% bright white dikhe */
+    input[type="text"],
+    input[type="password"],
+    .stTextInput input {
+        background-color: transparent !important;
         color: #ffffff !important;
-        font-weight: 600 !important;
-        padding: 10px 14px !important;
+        -webkit-text-fill-color: #ffffff !important;
+        font-size: 1.05rem !important;
+        font-weight: 500 !important;
     }
 
-    li[role="option"]:hover, div[role="option"]:hover {
-        background-color: #2563eb !important;
-        color: #ffffff !important;
+    /* Eye icon button container transparent & clean */
+    div[data-baseweb="input"] button {
+        background-color: transparent !important;
+        border: none !important;
     }
 
-    /* Submit Button */
-    div[data-testid="stForm"] button[kind="primaryFormSubmit"],
+    /* Eye Icon ko bright Cyan Blue me show karein */
+    div[data-baseweb="input"] svg {
+        fill: #38bdf8 !important;
+        stroke: #38bdf8 !important;
+        width: 22px !important;
+        height: 22px !important;
+    }
+
     .stButton > button {
         background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%) !important;
         color: #ffffff !important;
@@ -149,7 +100,6 @@ st.markdown("""
         width: 100% !important;
     }
 
-    /* Expanders */
     div[data-testid="stExpander"] {
         background-color: #161b22 !important;
         border: 1px solid #30363d !important;
@@ -168,43 +118,6 @@ st.markdown("""
         padding: 3px 6px !important;
         border-radius: 4px !important;
         font-weight: 600 !important;
-    }
-
-    /* Loader */
-    .auth-loader-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 30px;
-        background: rgba(22, 27, 34, 0.95);
-        border: 2px solid #818cf8;
-        border-radius: 16px;
-        box-shadow: 0 0 30px rgba(129, 140, 248, 0.4);
-        margin: 20px auto;
-        max-width: 480px;
-    }
-
-    .glowing-spinner {
-        width: 60px;
-        height: 60px;
-        border: 4px solid #21262d;
-        border-top: 4px solid #38bdf8;
-        border-right: 4px solid #a855f7;
-        border-radius: 50%;
-        animation: spinRing 0.9s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
-        margin-bottom: 20px;
-    }
-
-    .auth-pulse-text {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #38bdf8 !important;
-    }
-
-    @keyframes spinRing {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -350,25 +263,18 @@ if not st.session_state.logged_in:
             with st.form("login_form"):
                 st.markdown("#### Login to Developer Portal")
                 l_user = st.text_input("Username", placeholder="e.g. admin").strip().lower()
-                l_pass = st.text_input("Password", type="password", placeholder="••••••••").strip()
+                l_pass = st.text_input("Password", type="password", placeholder="Enter password").strip()
                 login_btn = st.form_submit_button("Sign In", type="primary")
 
                 if login_btn:
                     if not l_user or not l_pass:
                         st.warning("Please fill in both Username and Password.")
                     elif l_user in st.session_state.users_db and st.session_state.users_db[l_user] == l_pass:
-                        anim_placeholder = st.empty()
-                        anim_placeholder.markdown("""
-                        <div class='auth-loader-container'>
-                            <div class='glowing-spinner'></div>
-                            <div class='auth-pulse-text'>Verifying Credentials...</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        time.sleep(0.8)
-
                         st.session_state.logged_in = True
                         st.session_state.username = l_user.title()
                         st.session_state.current_page = "Generator"
+                        st.success("Login Successful! Opening Workspace...")
+                        time.sleep(0.5)
                         st.rerun()
                     else:
                         st.error("Invalid Username or Password. Please register if you are new.")
@@ -395,6 +301,8 @@ if not st.session_state.logged_in:
                         st.session_state.logged_in = True
                         st.session_state.username = r_user.title()
                         st.session_state.current_page = "Generator"
+                        st.success("Account created successfully!")
+                        time.sleep(0.5)
                         st.rerun()
 
     with auth_col2:
