@@ -58,28 +58,24 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* INPUT CONTAINER - Dark Background */
-    div[data-baseweb="input"],
-    div[data-baseweb="base-input"] {
-        background-color: #21262d !important;
-        border: 1px solid #484f58 !important;
-        border-radius: 8px !important;
-    }
-
-    /* TYPED TEXT - 100% Bright White & Clearly Visible */
-    .stTextInput input,
-    input[type="text"],
-    input[type="password"] {
-        background-color: transparent !important;
+    /* INPUT CONTAINER & INPUT TEXT FIXED */
+    div[data-testid="stTextInput"] input,
+    div[data-baseweb="input"] input,
+    input {
+        background-color: #1f2937 !important;
         color: #ffffff !important;
         -webkit-text-fill-color: #ffffff !important;
+        border: 1px solid #4b5563 !important;
+        border-radius: 8px !important;
         font-size: 1.05rem !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
+        padding: 10px 14px !important;
     }
 
-    /* Eye icon button and SVG fix */
+    /* Eye icon button and container */
+    div[data-baseweb="input"] > div,
     div[data-baseweb="input"] button {
-        background-color: transparent !important;
+        background-color: #1f2937 !important;
         border: none !important;
     }
 
@@ -418,6 +414,7 @@ elif st.session_state.current_page == "Generator" and st.session_state.logged_in
                         with c2:
                             st.markdown("##### Recommended Tech Stack")
                             tech_badges = " ".join([f"`{t}`" for t in proj["tech_stack"]])
+                            tech_badges = tech_badges if tech_badges else "`Core`"
                             st.write(tech_badges)
 
                         st.markdown("---")
